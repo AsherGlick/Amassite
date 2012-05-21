@@ -42,6 +42,7 @@ def main():
 def parsefile ( file_text ):
   match_pattern = "{{.*?}}"
   parsed_file = re.sub(match_pattern,parseelement,file_text)
+  return parsed_file
 
 ################################# PARSE ELEMENT ################################
 # This function takes in a matched object tag and then parses the insides to   #
