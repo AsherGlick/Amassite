@@ -57,10 +57,18 @@ def parsefile ( file_text , variable_map ):
 def parseelement (matchobj):
   # load the text
   text = matchobj.group(0)
-  # remove newlines and extra spaces
-  
-  # strip off the brackets
   text = text[2:len(text)-2]
+  # 
+  for char in text:
+    
+  
+  # find all of the tokens in the command
+  match_variable = "$[^\w]+"
+  match_setvar   = "[]"
+  match_fileload = "[^\w]+="
+  match_all = "("+match_variable+")|("+match_setvar+")|("+match_fileload+")"
+  # strip off the brackets
+  
   print text
   return "!"+text+"!"
 
@@ -68,6 +76,6 @@ def parseelement (matchobj):
 
 
 
-
+################################### RUN MAIN ###################################
 if __name__ == '__main__':
   main()
