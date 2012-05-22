@@ -31,17 +31,23 @@ def main():
   
   input_file_text = input_file.read()
   
-  output_file_text = parsefile (input_file_text)
+  output_file_text = parsefile (input_file_text, {})
   
   print "Amassite Parsing Complete"
   
   output_file.write(output_file_text)
   
   print "Amassite Writing Complete"
-    
-def parsefile ( file_text ):
-  match_pattern = "{{.*?}}"
+
+################################## PARSE FILE ##################################
+# Parse all the files, nope i am not doing a good job of documenting this just #
+# yet
+################################################################################
+def parsefile ( file_text , variable_map ):
+  # match patterns
+  match_pattern = "{{[^*]*?}}"
   parsed_file = re.sub(match_pattern,parseelement,file_text)
+  
   return parsed_file
 
 ################################# PARSE ELEMENT ################################
@@ -49,8 +55,18 @@ def parsefile ( file_text ):
 # result in the valid HTML for the compiled file                               #
 ################################################################################
 def parseelement (matchobj):
+  # load the text
   text = matchobj.group(0)
+  # remove newlines and extra spaces
+  
+  # strip off the brackets
+  text = text[2:len(text)-2]
+  print text
   return "!"+text+"!"
+
+
+
+
 
 
 if __name__ == '__main__':
