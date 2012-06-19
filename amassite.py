@@ -2,6 +2,7 @@
 
 import re
 import sys
+import os
 
 #for iomanipulation
 import StringIO
@@ -34,6 +35,8 @@ flag_descriptions = {
   'Python':"Creates a file and outputs it containing python code to generate the page"
 }
 
+__PATH=["."]
+
 ##################################### MAIN #####################################
 # The main function, does all the work, all the time...
 ################################################################################
@@ -52,13 +55,15 @@ def main():
     print "amassite <inputfile> <outputfile>"
     exit()
   
-  input_file = open(arguments[1],'r')
+  #input_file = open(arguments[1],'r')
   output_file = open(arguments[2],'w')
   
-  input_file_text = input_file.read()
+  #input_file_text = input_file.read()
   
-  output_file_text = parsefile (input_file_text, {})
+  #output_file_text = parsefile (input_file_text, {})
   
+  output_file_text = include (arguments[1])
+    
   print "Amassite Parsing Complete"
   
   output_file.write(output_file_text)
@@ -69,7 +74,7 @@ def main():
 # Parse all the files, nope i am not doing a good job of documenting this just #
 # yet
 ################################################################################
-def parsefile ( file_text , variable_map ):
+def parsefile ( file_text, variable_map ):
   # add the "include" function to the variables list
   variable_map["include"]=include
   # match patterns
@@ -107,7 +112,7 @@ def parsefile ( file_text , variable_map ):
     # add it to the output
     output += newline
   #print "Finished Generating Python"
-  #print output
+  print output
   
   
   # Swap the Output buffer
@@ -127,11 +132,18 @@ def parsefile ( file_text , variable_map ):
 def include(filePath, *args, **kw):
   outputStream = sys.stdout
   sys.stdout = standardout;
-  print "INCLUDING FILE"
-  
-  input_file = open(filePath,'r')
+  #print "INCLUDING FILE"
+  #print "Old path",__PATH[-1]
+  #print "relative Path", filePath
+  newpath = os.path.join(__PATH[-1],filePath)
+  print "New path", newpath
+  newrootpath = os.path.dirname(newpath)
+  #print "New Root path",newrootpath
+  input_file = open(newpath,'r')
   input_file_text = input_file.read()
+  __PATH.append(newrootpath)
   output_file_text = parsefile (input_file_text, kw)
+  __PATH.pop()
   print "FINISHED INCLUDING FILE"
   sys.stdout = outputStream
   print output_file_text
