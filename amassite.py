@@ -9,6 +9,8 @@ import StringIO
 #for partial functions
 #from functools import partial
 
+standardout = sys.stdout
+
 flag_alias = {
   '-v':'Verbose',
   '-verbose':'Verbose',
@@ -104,7 +106,8 @@ def parsefile ( file_text , variable_map ):
     iteration += 1
     # add it to the output
     output += newline
-  print "Finished Generating Python"
+  #print "Finished Generating Python"
+  #print output
   
   
   # Swap the Output buffer
@@ -117,17 +120,21 @@ def parsefile ( file_text , variable_map ):
   sys.stdout = tempout
   newout.close
   #return parsed_file
-  print "finished running python"
+  #print "finished running python"
   return newout.getvalue()
 
 
 def include(filePath, *args, **kw):
+  outputStream = sys.stdout
+  sys.stdout = standardout;
   print "INCLUDING FILE"
-  print filePath
-  print args
-  print kw
+  
+  input_file = open(filePath,'r')
+  input_file_text = input_file.read()
+  output_file_text = parsefile (input_file_text, kw)
   print "FINISHED INCLUDING FILE"
-  return
+  sys.stdout = outputStream
+  print output_file_text
 ################################# PARSE ELEMENT ################################
 # This function takes in a matched object tag and then parses the insides to   #
 # result in the valid HTML for the compiled file                               #
