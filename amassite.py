@@ -58,13 +58,7 @@ def main():
     print "amassite <inputfile> <outputfile>"
     exit()
   
-  #input_file = open(arguments[1],'r')
   output_file = open(arguments[2],'w')
-  
-  #input_file_text = input_file.read()
-  
-  #output_file_text = parsefile (input_file_text, {})
-  
   output_file_text = includeCore (arguments[1])
     
   print "Amassite Parsing Complete"
@@ -94,8 +88,6 @@ def parsefile ( file_text, variable_map ):
   # match patterns
   match_pattern = "{{.*?}}"
   regexmatch = re.compile(match_pattern,re.DOTALL)
-  #parsed_file = re.sub(match_pattern,parseelement,file_text)
-  
   
   matches = regexmatch.findall (file_text)
   everythingelse = regexmatch.split(file_text)
@@ -108,7 +100,7 @@ def parsefile ( file_text, variable_map ):
   for match in matches:
     match = match[2:len(match)-2] # cut off the brackets
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
-    # if while for
+    # "if" "while" and "for" checking
     if (match=="endif") | (match=="endfor") | (match=="endwhile"):
       indentationLevel -= 1
       match = ""
@@ -130,9 +122,6 @@ def parsefile ( file_text, variable_map ):
     iteration += 1
     # add it to the output
     output += newline
-  #print "Finished Generating Python"
-  #print output
-  
   
   # Swap the Output buffer
   tempout = sys.stdout
@@ -143,59 +132,41 @@ def parsefile ( file_text, variable_map ):
   # Swap the output buffer back
   sys.stdout = tempout
   newout.close
-  #return parsed_file
-  #print "finished running python"
+  # Return the resulting text
   return newout.getvalue()
 
-
+#################################### INCLUDE ###################################
+# the include function is the function that gets called from the HTML template #
+# it runs the `include core` function and prints out the result, which is      #
+# redirected to a different input buffer and then saved to the full file       #
+################################################################################
 def include(filePath, *args, **kw):
   print includeCore (filePath, *args, **kw)
   
+################################# INCLUDE CORE #################################
+# The `include core` function calculates relative file paths, opens the file   #
+# requested and then parses it and returns the completed HTML of the file      #
+################################################################################
 def includeCore (filePath, *args, **kw):
+  # Save the curent output stream and reset it to default
   outputStream = sys.stdout
   sys.stdout = standardout;
-  #print "INCLUDING FILE"
-  #print "Old path",__PATH[-1]
-  #print "relative Path", filePath
+  # calculate the relative path of the file, relative to the file calling it  
   newpath = os.path.join(__PATH[-1],filePath)
-  #print "New path", newpath
+  # calculate the path of the new file for all the files that it wil call
   newrootpath = os.path.dirname(newpath)
-  #print "New Root path",newrootpath
+  __PATH.append(newrootpath)
+  # open the file
   input_file = open(newpath,'r')
   input_file_text = input_file.read()
-  __PATH.append(newrootpath)
+  # parse the file that was opened
   output_file_text = parsefile (input_file_text, kw)
+  # pop this files path off the stack now that parsefile is done with it
   __PATH.pop()
-  #print "FINISHED INCLUDING FILE"
+  # return the output stream to whatever it was before
   sys.stdout = outputStream
+  # return the data collected from the parsed file
   return output_file_text
-################################# PARSE ELEMENT ################################
-# This function takes in a matched object tag and then parses the insides to   #
-# result in the valid HTML for the compiled file                               #
-################################################################################
-'''
-def parseelement (matchobj):
-  text = matchobj.group(0)
-  print text,"|"
-  return ""
-  # load the text
-  
-  text = text[2:len(text)-2]
-  #   for char in text:
-    
-  
-  # find all of the tokens in the command
-  match_variable = "$[^\w]+"
-  match_setvar   = "[]"
-  match_fileload = "[^\w]+="
-  match_all = "("+match_variable+")|("+match_setvar+")|("+match_fileload+")"
-  # strip off the brackets
-  
-  print text
-  return "!"+text+"!" 
-'''
-
-
 
 
 ################################### RUN MAIN ###################################
