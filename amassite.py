@@ -36,6 +36,7 @@ def main():
   sys.stdout = tempout
   newout.close
   print ":",newout.getvalue(),":"
+  
   #remove the functioncall from the arguments list
   arguments = []
   for argument in sys.argv:
@@ -82,6 +83,11 @@ def parsefile ( file_text , variable_map ):
  
   print len(matches)
   print len(everythingelse)
+  
+  # swap output
+  exec (code,variable_map);
+  # swap output back
+  
   return parsed_file
 
 ################################# PARSE ELEMENT ################################
