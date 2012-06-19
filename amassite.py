@@ -36,14 +36,6 @@ flag_descriptions = {
 # The main function, does all the work, all the time...
 ################################################################################
 def main():
-  tempout = sys.stdout
-  newout = StringIO.StringIO()
-  sys.stdout = newout
-  exec ('print "hello",')
-  sys.stdout = tempout
-  newout.close
-  print ":",newout.getvalue(),":"
-  
   #remove the functioncall from the arguments list
   arguments = []
   for argument in sys.argv:
@@ -112,18 +104,29 @@ def parsefile ( file_text , variable_map ):
     iteration += 1
     # add it to the output
     output += newline
-  print output
-  print len(matches)
-  print len(everythingelse)
+  print "Finished Generating Python"
   
-  # swap output
+  
+  # Swap the Output buffer
+  tempout = sys.stdout
+  newout = StringIO.StringIO()
+  sys.stdout = newout
+  # Execute the code
   exec (output,variable_map);
-  # swap output back
-  
+  # Swap the output buffer back
+  sys.stdout = tempout
+  newout.close
   #return parsed_file
-  return ""
+  print "finished running python"
+  return newout.getvalue()
 
-def include(self, *args, **kw):
+
+def include(filePath, *args, **kw):
+  print "INCLUDING FILE"
+  print filePath
+  print args
+  print kw
+  print "FINISHED INCLUDING FILE"
   return
 ################################# PARSE ELEMENT ################################
 # This function takes in a matched object tag and then parses the insides to   #
