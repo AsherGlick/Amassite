@@ -97,7 +97,8 @@ def parsefile ( file_text, variable_map ):
     # if while for
     if (match=="endif") | (match=="endfor") | (match=="endwhile"):
       indentationLevel -= 1
-      continue #endx is not really a function so it will not be included in the code
+      match = ""
+      #continue #endx is not really a function so it will not be included in the code
     if (match[0:4]=="elif") | (match[0:4]=="else"):
       indentationLevel -=1
     #create indentation level
