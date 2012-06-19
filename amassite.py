@@ -73,8 +73,16 @@ def parsefile ( file_text , variable_map ):
   match_pattern = "{{.*?}}"
   regexmatch = re.compile(match_pattern,re.DOTALL)
   #parsed_file = re.sub(match_pattern,parseelement,file_text)
+  
+  
   matches = regexmatch.findall (file_text)
   everythingelse = regexmatch.split(file_text)
+ 
+  #if len(matches) == len(everythingelse):
+    
+  #elif len(matches)-1 == len(everythingelse):
+  
+  
   print len(matches)
   print len(everythingelse)
   return parsed_file
