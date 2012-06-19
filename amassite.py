@@ -95,7 +95,7 @@ def parsefile ( file_text, variable_map ):
   variable_map["__EVERYTHING_ELSE"] = everythingelse;
   indentationLevel = 0
   indent = "  ";
-  output = "import math\nimport sys\nprint __EVERYTHING_ELSE[0]\n"
+  output = "import math\nimport sys\nprint __EVERYTHING_ELSE[0],\n"
   iteration = 1;
   for match in matches:
     match = match[2:len(match)-2] # cut off the brackets
@@ -141,7 +141,7 @@ def parsefile ( file_text, variable_map ):
 # redirected to a different input buffer and then saved to the full file       #
 ################################################################################
 def include(filePath, *args, **kw):
-  print includeCore (filePath, *args, **kw)
+  print includeCore (filePath, *args, **kw),
   
 ################################# INCLUDE CORE #################################
 # The `include core` function calculates relative file paths, opens the file   #
