@@ -15,24 +15,27 @@ standardout = sys.stdout
 flag_alias = {
   '-v':'Verbose',
   '-verbose':'Verbose',
-  '-c':'Compress',
+  '-C':'Compress',
   '-m':'Minimize',
   '--help':'Help',
-  '-p':'Python'
+  '-p':'Python',
+  '-c':'Cleanup'
 }
 
 flags = {
   'Verbose':0,
   'Compress':0,
   'Minimize':0,
-  'Python':0
+  'Python':0,
+  'Cleanup':0
 }
          
 flag_descriptions = {
   'Verbose':"Print out information step by step of the process",
   'Compress':"Compresses the file, removes spaces and whatnot",
   'Minimize':"",
-  'Python':"Creates a file and outputs it containing python code to generate the page"
+  'Python':"Creates a file and outputs it containing python code to generate the page",
+  'Cleanup':"The lowest form of compression, removes blank lines"
 }
 
 __PATH=["."]
@@ -66,6 +69,17 @@ def main():
     
   print "Amassite Parsing Complete"
   
+  if flags["Cleanup"]==1:
+    print "Cleaning File"
+    blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
+    output_file_text = blankline.sub("",output_file_text)
+    print "Cleaning Complete"
+  if flags["Compress"]==1:
+    print "Compressing File"
+    regexmatch = re.compile("<!--.*?-->",re.DOTALL)
+    output_file_text = regexmatch.sub("",output_file_text)
+    output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
+    print "Compressing Complete"
   output_file.write(output_file_text)
   
   print "Amassite Writing Complete"
@@ -117,7 +131,7 @@ def parsefile ( file_text, variable_map ):
     # add it to the output
     output += newline
   #print "Finished Generating Python"
-  print output
+  #print output
   
   
   # Swap the Output buffer
@@ -144,7 +158,7 @@ def includeCore (filePath, *args, **kw):
   #print "Old path",__PATH[-1]
   #print "relative Path", filePath
   newpath = os.path.join(__PATH[-1],filePath)
-  print "New path", newpath
+  #print "New path", newpath
   newrootpath = os.path.dirname(newpath)
   #print "New Root path",newrootpath
   input_file = open(newpath,'r')
@@ -152,7 +166,7 @@ def includeCore (filePath, *args, **kw):
   __PATH.append(newrootpath)
   output_file_text = parsefile (input_file_text, kw)
   __PATH.pop()
-  print "FINISHED INCLUDING FILE"
+  #print "FINISHED INCLUDING FILE"
   sys.stdout = outputStream
   return output_file_text
 ################################# PARSE ELEMENT ################################
