@@ -62,7 +62,7 @@ def main():
   
   #output_file_text = parsefile (input_file_text, {})
   
-  output_file_text = include (arguments[1])
+  output_file_text = includeCore (arguments[1])
     
   print "Amassite Parsing Complete"
   
@@ -132,6 +132,9 @@ def parsefile ( file_text, variable_map ):
 
 
 def include(filePath, *args, **kw):
+  print includeCore (filePath, *args, **kw)
+  
+def includeCore (filePath, *args, **kw):
   outputStream = sys.stdout
   sys.stdout = standardout;
   #print "INCLUDING FILE"
@@ -148,7 +151,7 @@ def include(filePath, *args, **kw):
   __PATH.pop()
   print "FINISHED INCLUDING FILE"
   sys.stdout = outputStream
-  print output_file_text
+  return output_file_text
 ################################# PARSE ELEMENT ################################
 # This function takes in a matched object tag and then parses the insides to   #
 # result in the valid HTML for the compiled file                               #
