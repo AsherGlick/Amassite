@@ -77,12 +77,9 @@ def parsefile ( file_text , variable_map ):
   
   matches = regexmatch.findall (file_text)
   everythingelse = regexmatch.split(file_text)
+  
+  
  
-  #if len(matches) == len(everythingelse):
-    
-  #elif len(matches)-1 == len(everythingelse):
-  
-  
   print len(matches)
   print len(everythingelse)
   return parsed_file
@@ -91,6 +88,7 @@ def parsefile ( file_text , variable_map ):
 # This function takes in a matched object tag and then parses the insides to   #
 # result in the valid HTML for the compiled file                               #
 ################################################################################
+'''
 def parseelement (matchobj):
   text = matchobj.group(0)
   print text,"|"
@@ -110,7 +108,7 @@ def parseelement (matchobj):
   
   print text
   return "!"+text+"!" 
-
+'''
 
 
 
