@@ -16,10 +16,10 @@ flag_alias = {
   '-v':'Verbose',
   '-verbose':'Verbose',
   '-C':'Compress',
-  '-m':'Minimize',
+  '-m':'Javascript Minimize',
   '--help':'Help',
   '-p':'Python',
-  '-c':'Cleanup'
+  '-c':'Cleanup',
 }
 
 flags = {
@@ -69,7 +69,7 @@ def main():
     output_file_text = blankline.sub("",output_file_text)
     print "Cleaning Complete"
   if flags["Compress"]==1:
-    print "Compressing File"
+    print "Compressing HTML"
     regexmatch = re.compile("<!--.*?-->",re.DOTALL)
     output_file_text = regexmatch.sub("",output_file_text)
     output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
