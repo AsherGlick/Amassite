@@ -3,15 +3,39 @@
 import re
 import sys
 
-flag_alias = {'-v':'Verbose',
-              '-verbose':'Verbose'}
-flags = {'Verbose':0}
+#for iomanipulation
+import StringIO
+
+flag_alias = {
+  '-v':'Verbose',
+  '-verbose':'Verbose',
+  '-c':'Compress',
+  '-m':'Minimize',
+  '--help':'Help'
+}
+
+flags = {
+  'Verbose':0,
+  'Compress':0,
+  'Minimize':0
+}
          
+flag_descriptions = {
+  'Verbose':"Print out information step by step of the process",
+  'Compress':"Compresses the file, removes spaces and whatnot"
+}
 
 ##################################### MAIN #####################################
 # The main function, does all the work, all the time...
 ################################################################################
 def main():
+  tempout = sys.stdout
+  newout = StringIO.StringIO()
+  sys.stdout = newout
+  exec ('print "hello",')
+  sys.stdout = tempout
+  newout.close
+  print ":",newout.getvalue(),":"
   #remove the functioncall from the arguments list
   arguments = []
   for argument in sys.argv:
@@ -45,9 +69,14 @@ def main():
 ################################################################################
 def parsefile ( file_text , variable_map ):
   # match patterns
-  match_pattern = "{{[^*]*?}}"
-  parsed_file = re.sub(match_pattern,parseelement,file_text)
   
+  match_pattern = "{{.*?}}"
+  regexmatch = re.compile(match_pattern,re.DOTALL)
+  #parsed_file = re.sub(match_pattern,parseelement,file_text)
+  matches = regexmatch.findall (file_text)
+  everythingelse = regexmatch.split(file_text)
+  print len(matches)
+  print len(everythingelse)
   return parsed_file
 
 ################################# PARSE ELEMENT ################################
@@ -55,11 +84,13 @@ def parsefile ( file_text , variable_map ):
 # result in the valid HTML for the compiled file                               #
 ################################################################################
 def parseelement (matchobj):
-  # load the text
   text = matchobj.group(0)
+  print text,"|"
+  return ""
+  # load the text
+  
   text = text[2:len(text)-2]
-  # 
-  for char in text:
+  #   for char in text:
     
   
   # find all of the tokens in the command
@@ -70,7 +101,7 @@ def parseelement (matchobj):
   # strip off the brackets
   
   print text
-  return "!"+text+"!"
+  return "!"+text+"!" 
 
 
 
