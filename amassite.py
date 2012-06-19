@@ -103,6 +103,8 @@ def parsefile ( file_text, variable_map ):
       indentationLevel -=1
     #create indentation level
     newline = indent*indentationLevel
+    if (match[0:5]=="print"):
+      match+=","
     newline += match
     if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while") | (match[0:4]=="elif") | (match[0:4]=="else"):
       indentationLevel += 1
@@ -110,7 +112,7 @@ def parsefile ( file_text, variable_map ):
         newline+=":"
     newline += "\n"
     # then include the text
-    newline += indent*indentationLevel + "print __EVERYTHING_ELSE["+ str(iteration) + "]\n"
+    newline += indent*indentationLevel + "print __EVERYTHING_ELSE["+ str(iteration) + "],\n"
     iteration += 1
     # add it to the output
     output += newline
