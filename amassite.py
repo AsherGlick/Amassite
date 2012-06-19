@@ -6,6 +6,9 @@ import sys
 #for iomanipulation
 import StringIO
 
+#for partial functions
+#from functools import partial
+
 flag_alias = {
   '-v':'Verbose',
   '-verbose':'Verbose',
@@ -69,8 +72,9 @@ def main():
 # yet
 ################################################################################
 def parsefile ( file_text , variable_map ):
+  # add the "include" function to the variables list
+  variable_map["include"]=include
   # match patterns
-  
   match_pattern = "{{.*?}}"
   regexmatch = re.compile(match_pattern,re.DOTALL)
   #parsed_file = re.sub(match_pattern,parseelement,file_text)
@@ -79,17 +83,44 @@ def parsefile ( file_text , variable_map ):
   matches = regexmatch.findall (file_text)
   everythingelse = regexmatch.split(file_text)
   
-  
- 
+  variable_map["__EVERYTHING_ELSE"] = everythingelse;
+  indentationLevel = 0
+  indent = "  ";
+  output = "print __EVERYTHING_ELSE[0]\n"
+  iteration = 1;
+  for match in matches:
+    match = match[2:len(match)-2] # cut off the brackets
+    match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
+    # if while for
+    if (match=="endif") | (match=="endfor") | (match=="endwhile"):
+      indentationLevel -= 1
+      continue #endx is not really a function so it will not be included in the code
+    #create indentation level
+    newline = indent*indentationLevel
+    newline += match
+    if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while"):
+      indentationLevel += 1
+      if match[len(match)-1:len(match)] != ":":
+        newline+=":"
+    newline += "\n"
+    # then include the text
+    newline += indent*indentationLevel + "print __EVERYTHING_ELSE["+ str(iteration) + "]\n"
+    iteration += 1
+    # add it to the output
+    output += newline
+  print output
   print len(matches)
   print len(everythingelse)
   
   # swap output
-  exec (code,variable_map);
+  exec (output,variable_map);
   # swap output back
   
-  return parsed_file
+  #return parsed_file
+  return ""
 
+def include():
+  return
 ################################# PARSE ELEMENT ################################
 # This function takes in a matched object tag and then parses the insides to   #
 # result in the valid HTML for the compiled file                               #
