@@ -14,18 +14,22 @@ flag_alias = {
   '-verbose':'Verbose',
   '-c':'Compress',
   '-m':'Minimize',
-  '--help':'Help'
+  '--help':'Help',
+  '-p':'Python'
 }
 
 flags = {
   'Verbose':0,
   'Compress':0,
-  'Minimize':0
+  'Minimize':0,
+  'Python':0
 }
          
 flag_descriptions = {
   'Verbose':"Print out information step by step of the process",
-  'Compress':"Compresses the file, removes spaces and whatnot"
+  'Compress':"Compresses the file, removes spaces and whatnot",
+  'Minimize':"",
+  'Python':"Creates a file and outputs it containing python code to generate the page"
 }
 
 ##################################### MAIN #####################################
@@ -119,7 +123,7 @@ def parsefile ( file_text , variable_map ):
   #return parsed_file
   return ""
 
-def include():
+def include(self, *args, **kw):
   return
 ################################# PARSE ELEMENT ################################
 # This function takes in a matched object tag and then parses the insides to   #
