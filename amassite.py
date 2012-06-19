@@ -89,7 +89,7 @@ def parsefile ( file_text, variable_map ):
   variable_map["__EVERYTHING_ELSE"] = everythingelse;
   indentationLevel = 0
   indent = "  ";
-  output = "print __EVERYTHING_ELSE[0]\n"
+  output = "import math\nprint __EVERYTHING_ELSE[0]\n"
   iteration = 1;
   for match in matches:
     match = match[2:len(match)-2] # cut off the brackets
@@ -98,10 +98,12 @@ def parsefile ( file_text, variable_map ):
     if (match=="endif") | (match=="endfor") | (match=="endwhile"):
       indentationLevel -= 1
       continue #endx is not really a function so it will not be included in the code
+    if (match[0:4]=="elif") | (match[0:4]=="else"):
+      indentationLevel -=1
     #create indentation level
     newline = indent*indentationLevel
     newline += match
-    if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while"):
+    if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while") | (match[0:4]=="elif") | (match[0:4]=="else"):
       indentationLevel += 1
       if match[len(match)-1:len(match)] != ":":
         newline+=":"
