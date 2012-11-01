@@ -41,7 +41,7 @@ flag_descriptions = {
 __PATH=["."]
 
 ##################################### MAIN #####################################
-# The main function, does all the work, all the time...
+# The main function, does all the work, all the time...                        #
 ################################################################################
 def main():
   #remove the functioncall from the arguments list
@@ -80,7 +80,7 @@ def main():
 
 ################################## PARSE FILE ##################################
 # Parse all the files, nope i am not doing a good job of documenting this just #
-# yet
+# yet                                                                          #
 ################################################################################
 def parsefile ( file_text, variable_map ):
   # add the "include" function to the variables list
