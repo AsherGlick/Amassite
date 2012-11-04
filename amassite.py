@@ -95,7 +95,7 @@ def parsefile ( file_text, variable_map ):
   variable_map["__EVERYTHING_ELSE"] = everythingelse;
   indentationLevel = 0
   indent = "  ";
-  output = "import math\nimport sys\nprint __EVERYTHING_ELSE[0],\n"
+  output = "import math\nimport sys\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1;
   for match in matches:
     match = match[2:len(match)-2] # cut off the brackets
@@ -110,7 +110,7 @@ def parsefile ( file_text, variable_map ):
     #create indentation level
     newline = indent*indentationLevel
     if (match[0:5]=="print"):
-      match+=","
+      match="sys.stdout.write("+match[5:]+")"
     newline += match
     if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while") | (match[0:4]=="elif") | (match[0:4]=="else"):
       indentationLevel += 1
