@@ -97,6 +97,9 @@ def parsefile ( file_text, variable_map ):
   indent = "  ";
   output = "import math\nimport sys\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1;
+########################### CHECK THROUGH THE MATCHES ##########################
+# These are the matches for the different Amassite tags in the HTML            #
+################################################################################
   for match in matches:
     match = match[2:len(match)-2] # cut off the brackets
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
