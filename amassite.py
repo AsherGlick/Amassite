@@ -97,32 +97,58 @@ def parsefile ( file_text, variable_map ):
   indent = "  ";
   output = "import math\nimport sys\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1;
+
+  # Iterate through all the tokens
   for match in matches:
+    # input sanitization
     match = match[2:len(match)-2] # cut off the brackets
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
-    # "if" "while" and "for" checking
+
+    # un indent without real command
     if (match=="endif") | (match=="endfor") | (match=="endwhile"):
       indentationLevel -= 1
-      match = ""
-      #continue #endx is not really a function so it will not be included in the code
+      match = "" #end___ are not really a functions so they will not be included in the code
+
+    # un indent with real command
     if (match[0:4]=="elif") | (match[0:4]=="else"):
       indentationLevel -=1
-    #create indentation level
+
+    # create indentation at the level specified by indentationLevel
     newline = indent*indentationLevel
+
+    # match some key commands to modify into different functions
     if (match[0:5]=="print"):
       match="sys.stdout.write("+match[5:]+")"
+    if (match[0:11]=="varArgument"):
+      pass
+    if (match[0:14]=="endArgument"):
+      pass
+    if (match[]=='arrayArguments'):
+      pass
+    if (match[]=='nextArgument'):
+      pass
+    if (match[]=='endArguments'):
+      pass
+
+    # add the matched command to the generated code
     newline += match
+
+    # if it is a command wich requires indenting on the next line
     if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while") | (match[0:4]=="elif") | (match[0:4]=="else"):
       indentationLevel += 1
       if match[len(match)-1:len(match)] != ":":
         newline+=":"
+
+    # create a new line
     newline += "\n"
-    # then include the text
+    # include the html between the toens
     newline += indent*indentationLevel + "sys.stdout.write(__EVERYTHING_ELSE["+ str(iteration) + "])\n"
     iteration += 1
+
     # add it to the output
     output += newline
   
+  # Run the generated code and print its output to a file
   # Swap the Output buffer
   tempout = sys.stdout
   newout = StringIO.StringIO()
