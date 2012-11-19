@@ -109,12 +109,14 @@ def parsefile ( file_text, variable_map ):
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
 
     # un indent without real command
-    if (match=="endif") | (match=="endfor") | (match=="endwhile"):
+    unIndentWithoutCommand = ['endif','endfor','endwhile']
+    if multiPrefixMatch(unIndentWithoutCommand,match):
       indentationLevel -= 1
       match = "" #end___ are not really a functions so they will not be included in the code
 
     # un indent with real command
-    if (match[0:4]=="elif") | (match[0:4]=="else"):
+    unIndentWithCommand = ['elif','else']
+    if multiPrefixMatch(unIndentWithCommand,match):
       indentationLevel -=1
 
     # create indentation at the level specified by indentationLevel
@@ -156,7 +158,8 @@ def parsefile ( file_text, variable_map ):
     newline += match
 
     # if it is a command wich requires indenting on the next line
-    if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while") | (match[0:4]=="elif") | (match[0:4]=="else"):
+    indentCommands = ['if','for','while','elif','else']
+    if multiPrefixMatch(indentCommands,match):
       indentationLevel += 1
       if match[len(match)-1:len(match)] != ":":
         newline+=":"
@@ -172,6 +175,7 @@ def parsefile ( file_text, variable_map ):
   
   # Run the generated code and print its output to a file
   # Swap the Output buffer
+  print output
   tempout = sys.stdout
   newout = StringIO.StringIO()
   sys.stdout = newout
@@ -216,6 +220,28 @@ def includeCore (filePath, *args, **kw):
   # return the data collected from the parsed file
   return output_file_text
 
+## a simple way to match the begining characters of a string
+def prefexMatch(prefex, string):
+  print string, ":", prefex,":",
+  if len(string) >= len(prefex):
+    substring = string[0:len(prefex)]
+    print substring,":",
+    if prefex == substring:
+      print "true"
+      return True
+    else:
+      print "false"
+      return False
+  else:
+    print "false"
+    return False
+
+## a function to run a prefex match on an array of prefexes and a string
+def multiPrefixMatch(prefexes, string):
+  for prefex in prefexes:
+    if prefexMatch(prefex,string):
+      return True
+  return False
 
 ################################### RUN MAIN ###################################
 if __name__ == '__main__':
