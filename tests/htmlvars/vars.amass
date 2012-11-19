@@ -1,0 +1,8 @@
+{{varArgument helloWorld}}
+	<b> HELLO WORLD </b> <br>
+{{endArgument}}
+
+
+{{for i in range(0,10)}}
+	{{print helloWorld}}
+{{endfor}}
