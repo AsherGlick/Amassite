@@ -94,6 +94,8 @@ def parsefile ( file_text, variable_map ):
   
   variable_map["__EVERYTHING_ELSE"] = everythingelse;
   variable_map["stdoutRedirects"] = []
+  variable_map["stringIOs"] = []
+  variableNames = [] # an array/queue of the variable names for the html arguments
   indentationLevel = 0
   indent = "  ";
   output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
@@ -124,19 +126,23 @@ def parsefile ( file_text, variable_map ):
 
 
     if (match[0:11]=="varArgument"):
-      variableName = match[12:]
+      variableNames.append(match[12:])
       #print variableName
       newline += "stdoutRedirects.append(sys.stdout)\n"
-      newline += "__tempVariable" +" = StringIO.StringIO()\n"
-      newline += "sys.stdout = "+ "__tempVariable" + "\n"
+      newline += "newOutput = StringIO.StringIO()\n"
+      newline += "sys.stdout = "+ "newOutput\n"
+      newline += "stringIOs.append(newOutput)\n"
       match = ""
       
     if (match[0:14]=="endArgument"):
+      variableName = variableNames.pop()
+      # grab the embedded value
+      newline += "outputString = stringIOs.pop()\n"
       # createTheVariable
-      newline += variableName + " = __tempVariable.getvalue()\n" 
+      newline += variableName + " = outputString.getvalue()\n" 
       # Swap the output buffer back
       newline += "sys.stdout = stdoutRedirects.pop()\n"
-      newline += "__tempVariable"+".close\n"  
+      newline += "outputString.close\n"  
       match = ""
       
     # if (match[]=='arrayArguments'):
@@ -166,8 +172,6 @@ def parsefile ( file_text, variable_map ):
   
   # Run the generated code and print its output to a file
   # Swap the Output buffer
-  print output, ":"
-  print "WHAT HTE HELL"
   tempout = sys.stdout
   newout = StringIO.StringIO()
   sys.stdout = newout
