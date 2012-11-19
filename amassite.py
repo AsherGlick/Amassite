@@ -93,10 +93,12 @@ def parsefile ( file_text, variable_map ):
   everythingelse = regexmatch.split(file_text)
   
   variable_map["__EVERYTHING_ELSE"] = everythingelse;
+  variable_map["stdoutRedirects"] = []
   indentationLevel = 0
   indent = "  ";
-  output = "import math\nimport sys\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
+  output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1;
+  inArgument = False
 
   # Iterate through all the tokens
   for match in matches:
@@ -119,16 +121,30 @@ def parsefile ( file_text, variable_map ):
     # match some key commands to modify into different functions
     if (match[0:5]=="print"):
       match="sys.stdout.write("+match[5:]+")"
+
+
     if (match[0:11]=="varArgument"):
-      pass
+      variableName = match[12:]
+      #print variableName
+      newline += "stdoutRedirects.append(sys.stdout)\n"
+      newline += "__tempVariable" +" = StringIO.StringIO()\n"
+      newline += "sys.stdout = "+ "__tempVariable" + "\n"
+      match = ""
+      
     if (match[0:14]=="endArgument"):
-      pass
-    if (match[]=='arrayArguments'):
-      pass
-    if (match[]=='nextArgument'):
-      pass
-    if (match[]=='endArguments'):
-      pass
+      # createTheVariable
+      newline += variableName + " = __tempVariable.getvalue()\n" 
+      # Swap the output buffer back
+      newline += "sys.stdout = stdoutRedirects.pop()\n"
+      newline += "__tempVariable"+".close\n"  
+      match = ""
+      
+    # if (match[]=='arrayArguments'):
+    #   pass
+    # if (match[]=='nextArgument'):
+    #   pass
+    # if (match[]=='endArguments'):
+    #   pass
 
     # add the matched command to the generated code
     newline += match
@@ -150,6 +166,8 @@ def parsefile ( file_text, variable_map ):
   
   # Run the generated code and print its output to a file
   # Swap the Output buffer
+  print output, ":"
+  print "WHAT HTE HELL"
   tempout = sys.stdout
   newout = StringIO.StringIO()
   sys.stdout = newout
