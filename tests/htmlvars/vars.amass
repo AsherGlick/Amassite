@@ -12,8 +12,22 @@
 {{endArgument}}
 
 <div style="padding: 20px">
-{{print globalWraper}}
+	{{print globalWraper}}
 </div>
 
+
+{{arrayArguments sampleArray}}
+	Howdy
+{{nextArgument}}
+	planet
+{{endArray}}
+
+LENGTH IS
+{{print len(sampleArray)}}
+ELEMENTS
+
+{{for i in sampleArray}}
+	{{print i}}
+{{endfor}}
 
 
