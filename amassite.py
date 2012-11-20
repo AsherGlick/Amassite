@@ -136,7 +136,7 @@ def parsefile ( file_text, variable_map ):
       newline += "stringIOs.append(newOutput)\n"
       match = ""
       
-    if (match[0:14]=="endArgument"):
+    if (match[0:11]=="endArgument"):
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -146,13 +146,55 @@ def parsefile ( file_text, variable_map ):
       newline += "sys.stdout = stdoutRedirects.pop()\n"
       newline += "outputString.close\n"  
       match = ""
+    
+
+    ## array arguments
+    if prefexMatch('arrayArguments', match):
+      variableName = match[15:]
+      variableNames.append(variableName)
+      #print variableName
+      newline += "stdoutRedirects.append(sys.stdout)\n"
+      newline += "newOutput = StringIO.StringIO()\n"
+      newline += "sys.stdout = "+ "newOutput\n"
+      newline += "stringIOs.append(newOutput)\n"
       
-    # if (match[]=='arrayArguments'):
-    #   pass
-    # if (match[]=='nextArgument'):
-    #   pass
-    # if (match[]=='endArguments'):
-    #   pass
+      newline += variableName + " = []\n"
+
+      match = ""
+
+    if prefexMatch('nextArgument',match):
+
+      variableName = variableNames[-1]
+
+
+      # grab the embedded value
+      newline += "outputString = stringIOs.pop()\n"
+      # createTheVariable
+      newline += variableName + ".append(outputString.getvalue())\n" 
+      #newline += variableName + ".append('v')\n" 
+
+      # Swap the output buffer back
+      #newline += "sys.stdout = stdoutRedirects.pop()\n"
+      newline += "outputString.close\n"
+      # put a new outout string inot the buffer for the next element
+      newline += "newOutput = StringIO.StringIO()\n"
+      newline += "sys.stdout = newOutput\n"
+      newline += "stringIOs.append(newOutput)\n"
+      match = ""
+      
+
+    if prefexMatch('endArray',match):
+
+      variableName = variableNames.pop()
+      # grab the embedded value
+      newline += "outputString = stringIOs.pop()\n"
+      # createTheVariable
+      newline += variableName + ".append(outputString.getvalue())\n" 
+      # Swap the output buffer back
+      newline += "sys.stdout = stdoutRedirects.pop()\n"
+      newline += "outputString.close\n"
+      
+      match = ""
 
     # add the matched command to the generated code
     newline += match
@@ -222,21 +264,21 @@ def includeCore (filePath, *args, **kw):
 
 ## a simple way to match the begining characters of a string
 def prefexMatch(prefex, string):
-  print string, ":", prefex,":",
+  #print string, ":", prefex,":",
   if len(string) >= len(prefex):
     substring = string[0:len(prefex)]
-    print substring,":",
+    #print substring,":",
     if prefex == substring:
-      print "true"
+      #print "true"
       return True
     else:
-      print "false"
+      #print "false"
       return False
   else:
-    print "false"
+    #print "false"
     return False
 
-## a function to run a prefex match on an array of prefexes and a string
+## a function to run a prefex match on an array of preefexes and a string
 def multiPrefixMatch(prefexes, string):
   for prefex in prefexes:
     if prefexMatch(prefex,string):
