@@ -217,7 +217,7 @@ def parsefile ( file_text, variable_map ):
   
   # Run the generated code and print its output to a file
   # Swap the Output buffer
-  print output
+  ### print output
   tempout = sys.stdout
   newout = StringIO.StringIO()
   sys.stdout = newout
