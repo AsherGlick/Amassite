@@ -44,39 +44,81 @@ __PATH=["."]
 # The main function, does all the work, all the time...                        #
 ################################################################################
 def main():
+  # grab the arguments and set the flag
+  arguments = setFlags(sys.argv,flag_alias)
+
+  # argument sanitatiy check
+  if len(arguments) != 3:
+    print "amassite <input> <output>"
+    exit()
+  
+
+  inputPath = arguments[1]
+  outputPath = arguments[2]
+
+  # Check to see if arguments are files or directories
+  if os.path.isdir(inputPath) != os.path.isdir(outputPath):
+    print "Both the input and the output must be a directory or a file path, they cannot be both"
+    exit()
+
+  
+  if os.path.isdir(inputPath) == False:
+    compileFile(inputPath, outputPath)
+  else:
+    fileList = getFileList(inputPath) # recursively get all the file names
+    for f in fileList:
+      print f
+    #for fileName in fileList):
+      #compileFile(os.path.join(inputPath,fileName), os.path.join(outputPath,fileName))
+
+
+def getFileList(inputPath):
+  fileList = []
+  for path in os.listdir(inputPath):
+    if os.path.isdir(os.path.join(inputPath,path)):
+      subFiles = [os.path.join(path,f) for f in getFileList(os.path.join(inputPath,path))]
+      fileList.extend(subFiles)
+    else:
+      fileList.append(path)
+  return fileList
+
+
+def compileFile(inputFile,outputFile):
+    output_file = open(outputFile,'w') # open file to output to
+    output_file_text = includeCore(inputFile)  # act as if the specified file was being included in a blank html document (only will accept files)
+      
+    print "Amassite Parsing Complete"
+    
+    if flags["Cleanup"]==1:
+      print "Cleaning File"
+      blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
+      output_file_text = blankline.sub("",output_file_text)
+      print "Cleaning Complete"
+    if flags["Compress"]==1:
+      print "Compressing HTML"
+      regexmatch = re.compile("<!--.*?-->",re.DOTALL)
+      output_file_text = regexmatch.sub("",output_file_text)
+      output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
+      print "Compressing Complete"
+    output_file.write(output_file_text)
+    
+    print "Amassite Writing Complete"
+
+###############################################
+# this function goes through all the arguments and sets the flags of the arguments that exist.
+# all the other arguments that are not set as flags are returned as an array
+#################################################
+def setFlags(arguments, flags):
   #remove the functioncall from the arguments list
-  arguments = []
-  for argument in sys.argv:
+  nonFlagArguments = []
+  for argument in arguments:
     try:
       flagname = flag_alias[argument]
       flags[flagname] = 1
       print flagname, "Mode"
     except Exception:
-      arguments.append(argument)
-  
-  if len(arguments) != 3:
-    print "amassite <inputfile> <outputfile>"
-    exit()
-  
-  output_file = open(arguments[2],'w')
-  output_file_text = includeCore (arguments[1])
-    
-  print "Amassite Parsing Complete"
-  
-  if flags["Cleanup"]==1:
-    print "Cleaning File"
-    blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
-    output_file_text = blankline.sub("",output_file_text)
-    print "Cleaning Complete"
-  if flags["Compress"]==1:
-    print "Compressing HTML"
-    regexmatch = re.compile("<!--.*?-->",re.DOTALL)
-    output_file_text = regexmatch.sub("",output_file_text)
-    output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
-    print "Compressing Complete"
-  output_file.write(output_file_text)
-  
-  print "Amassite Writing Complete"
+      nonFlagArguments.append(argument)
+  return nonFlagArguments
 
 ################################## PARSE FILE ##################################
 # Parse all the files, nope i am not doing a good job of documenting this just #
@@ -101,6 +143,7 @@ def parsefile ( file_text, variable_map ):
   indent = "  ";
   output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1;
+
 ########################### CHECK THROUGH THE MATCHES ##########################
 # These are the matches for the different Amassite tags in the HTML            #
 ################################################################################
@@ -262,7 +305,9 @@ def includeCore (filePath, *args, **kw):
   # return the data collected from the parsed file
   return output_file_text
 
+#############
 ## a simple way to match the begining characters of a string
+###########
 def prefexMatch(prefex, string):
   #print string, ":", prefex,":",
   if len(string) >= len(prefex):
@@ -278,7 +323,9 @@ def prefexMatch(prefex, string):
     #print "false"
     return False
 
+#######################
 ## a function to run a prefex match on an array of preefexes and a string
+########################
 def multiPrefixMatch(prefexes, string):
   for prefex in prefexes:
     if prefexMatch(prefex,string):
