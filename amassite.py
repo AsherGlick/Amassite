@@ -71,7 +71,7 @@ def main():
     for fileName in fileList:
       compileFile(os.path.join(inputPath,fileName), os.path.join(outputPath,fileName))
 
-
+# recursive function to get all the files in a specified directory with relative paths to that directory #
 def getFileList(inputPath):
   fileList = []
   for path in os.listdir(inputPath):
@@ -90,10 +90,19 @@ def createFile (filePath):
   return open(filePath,'w')
 
 def compileFile(inputFile,outputFile):
+    # Check to see if this file is a template file
+    input_file = open(inputFile)
+    firstLine = input_file.readline()
+    input_file.close()
+    if firstLine == "{{AMASSITE-TEMPLATE}}\n": ## TODO ## This method needs to check to see if that tag exists at all on the first line of the file instead of matching exactly
+      # This file is an amassite template file and should not be processed
+      return
+
+
+    print "Beginning", inputFile
+
     #output_file = open(outputFile,'w') # open file to output to
     output_file = createFile(outputFile)
-
-
 
     output_file_text = includeCore(inputFile)  # act as if the specified file was being included in a blank html document (only will accept files)
       
@@ -111,7 +120,7 @@ def compileFile(inputFile,outputFile):
       output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
       print "Compressing Complete"
     output_file.write(output_file_text)
-    
+
     print "Writing", outputFile, "Complete"
 
 ###############################################
