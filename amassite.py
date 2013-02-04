@@ -88,8 +88,9 @@ def parsefile ( file_text, variable_map ):
   # match patterns
   match_pattern = "{{.*?}}"
   regexmatch = re.compile(match_pattern,re.DOTALL)
-  
+  # find all the matches in the document
   matches = regexmatch.findall (file_text)
+  # find everything that is not a match
   everythingelse = regexmatch.split(file_text)
   
   variable_map["__EVERYTHING_ELSE"] = everythingelse;
@@ -103,23 +104,32 @@ def parsefile ( file_text, variable_map ):
   for match in matches:
     match = match[2:len(match)-2] # cut off the brackets
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
-    # "if" "while" and "for" checking
+
+    # Un indentation for the psuedo commands created in ammassite
     if (match=="endif") | (match=="endfor") | (match=="endwhile"):
       indentationLevel -= 1
-      match = ""
-      #continue #endx is not really a function so it will not be included in the code
+      match = "" # because these are not python functions do not actually include them in the final code
+
+    # Un indentation for the python commands that require un indentation
     if (match[0:4]=="elif") | (match[0:4]=="else"):
       indentationLevel -=1
-    #create indentation level
+
+    #Create a new line in the python code with the given indentation level
     newline = indent*indentationLevel
     if (match[0:5]=="print"):
       match="sys.stdout.write("+match[5:]+")"
     newline += match
+    
+    # If the function requires the next line to be indented then add an indentation for the next line
     if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while") | (match[0:4]=="elif") | (match[0:4]=="else"):
       indentationLevel += 1
       if match[len(match)-1:len(match)] != ":":
         newline+=":"
+    
+    # 
     newline += "\n"
+
+    if (htmlArgument)
     # then include the text
     newline += indent*indentationLevel + "sys.stdout.write(__EVERYTHING_ELSE["+ str(iteration) + "])\n"
     iteration += 1
