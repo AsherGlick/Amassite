@@ -66,10 +66,10 @@ def main():
     compileFile(inputPath, outputPath)
   else:
     fileList = getFileList(inputPath) # recursively get all the file names
-    for f in fileList:
-      print f
-    #for fileName in fileList):
-      #compileFile(os.path.join(inputPath,fileName), os.path.join(outputPath,fileName))
+    #for f in fileList:
+      #print f
+    for fileName in fileList:
+      compileFile(os.path.join(inputPath,fileName), os.path.join(outputPath,fileName))
 
 
 def getFileList(inputPath):
@@ -82,13 +82,23 @@ def getFileList(inputPath):
       fileList.append(path)
   return fileList
 
+# create file will create a new file and all the directories needed in order for that file to exist
+def createFile (filePath):
+  (path,filename) = os.path.split(filePath)
+  if not os.path.exists(path):
+    os.makedirs(path)
+  return open(filePath,'w')
 
 def compileFile(inputFile,outputFile):
-    output_file = open(outputFile,'w') # open file to output to
+    #output_file = open(outputFile,'w') # open file to output to
+    output_file = createFile(outputFile)
+
+
+
     output_file_text = includeCore(inputFile)  # act as if the specified file was being included in a blank html document (only will accept files)
       
-    print "Amassite Parsing Complete"
-    
+    print "Parsing", inputFile, "completed"
+
     if flags["Cleanup"]==1:
       print "Cleaning File"
       blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
@@ -102,7 +112,7 @@ def compileFile(inputFile,outputFile):
       print "Compressing Complete"
     output_file.write(output_file_text)
     
-    print "Amassite Writing Complete"
+    print "Writing", outputFile, "Complete"
 
 ###############################################
 # this function goes through all the arguments and sets the flags of the arguments that exist.
