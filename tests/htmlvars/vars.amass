@@ -1,0 +1,33 @@
+{{varArgument globalWraper}}
+
+	{{varArgument helloWorld}}
+		<b> HELLO WORLD </b> <br>
+		Whatsup!<br>
+	{{endArgument}}
+
+	{{for i in range(0,10)}}
+		{{print helloWorld}}
+	{{endfor}}
+
+{{endArgument}}
+
+<div style="padding: 20px">
+	{{print globalWraper}}
+</div>
+
+
+{{arrayArguments sampleArray}}
+	Howdy
+{{nextArgument}}
+	planet
+{{endArray}}
+
+LENGTH IS
+{{print len(sampleArray)}}
+ELEMENTS
+
+{{for i in sampleArray}}
+	{{print i}}
+{{endfor}}
+
+

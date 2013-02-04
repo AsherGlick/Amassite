@@ -94,14 +94,18 @@ def parsefile ( file_text, variable_map ):
   everythingelse = regexmatch.split(file_text)
   
   variable_map["__EVERYTHING_ELSE"] = everythingelse;
+  variable_map["stdoutRedirects"] = []
+  variable_map["stringIOs"] = []
+  variableNames = [] # an array/queue of the variable names for the html arguments
   indentationLevel = 0
   indent = "  ";
-  output = "import math\nimport sys\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
+  output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1;
 ########################### CHECK THROUGH THE MATCHES ##########################
 # These are the matches for the different Amassite tags in the HTML            #
 ################################################################################
   for match in matches:
+    # input sanitization
     match = match[2:len(match)-2] # cut off the brackets
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
 
@@ -116,27 +120,104 @@ def parsefile ( file_text, variable_map ):
 
     #Create a new line in the python code with the given indentation level
     newline = indent*indentationLevel
+
+    # match some key commands to modify into different functions
     if (match[0:5]=="print"):
       match="sys.stdout.write("+match[5:]+")"
-    newline += match
+
+
+    if (match[0:11]=="varArgument"):
+      variableNames.append(match[12:])
+      #print variableName
+      newline += "stdoutRedirects.append(sys.stdout)\n"
+      newline += "newOutput = StringIO.StringIO()\n"
+      newline += "sys.stdout = "+ "newOutput\n"
+      newline += "stringIOs.append(newOutput)\n"
+      match = ""
+      
+    if (match[0:11]=="endArgument"):
+      variableName = variableNames.pop()
+      # grab the embedded value
+      newline += "outputString = stringIOs.pop()\n"
+      # createTheVariable
+      newline += variableName + " = outputString.getvalue()\n" 
+      # Swap the output buffer back
+      newline += "sys.stdout = stdoutRedirects.pop()\n"
+      newline += "outputString.close\n"  
+      match = ""
     
-    # If the function requires the next line to be indented then add an indentation for the next line
-    if (match[0:2]=="if") | (match[0:3]=="for") | (match[0:5]=="while") | (match[0:4]=="elif") | (match[0:4]=="else"):
+
+    ## array arguments
+    if prefexMatch('arrayArguments', match):
+      variableName = match[15:]
+      variableNames.append(variableName)
+      #print variableName
+      newline += "stdoutRedirects.append(sys.stdout)\n"
+      newline += "newOutput = StringIO.StringIO()\n"
+      newline += "sys.stdout = "+ "newOutput\n"
+      newline += "stringIOs.append(newOutput)\n"
+      
+      newline += variableName + " = []\n"
+
+      match = ""
+
+    if prefexMatch('nextArgument',match):
+
+      variableName = variableNames[-1]
+
+
+      # grab the embedded value
+      newline += "outputString = stringIOs.pop()\n"
+      # createTheVariable
+      newline += variableName + ".append(outputString.getvalue())\n" 
+      #newline += variableName + ".append('v')\n" 
+
+      # Swap the output buffer back
+      #newline += "sys.stdout = stdoutRedirects.pop()\n"
+      newline += "outputString.close\n"
+      # put a new outout string inot the buffer for the next element
+      newline += "newOutput = StringIO.StringIO()\n"
+      newline += "sys.stdout = newOutput\n"
+      newline += "stringIOs.append(newOutput)\n"
+      match = ""
+      
+
+    if prefexMatch('endArray',match):
+
+      variableName = variableNames.pop()
+      # grab the embedded value
+      newline += "outputString = stringIOs.pop()\n"
+      # createTheVariable
+      newline += variableName + ".append(outputString.getvalue())\n" 
+      # Swap the output buffer back
+      newline += "sys.stdout = stdoutRedirects.pop()\n"
+      newline += "outputString.close\n"
+      
+      match = ""
+
+    # add the matched command to the generated code
+    newline += match
+
+
+    # if it is a command wich requires indenting on the next line
+    indentCommands = ['if','for','while','elif','else']
+    if multiPrefixMatch(indentCommands,match):
       indentationLevel += 1
       if match[len(match)-1:len(match)] != ":":
         newline+=":"
-    
-    # 
-    newline += "\n"
 
-    if (htmlArgument)
-    # then include the text
+    # create a new line
+    newline += "\n"
+    # include the html between the toens
     newline += indent*indentationLevel + "sys.stdout.write(__EVERYTHING_ELSE["+ str(iteration) + "])\n"
     iteration += 1
+
     # add it to the output
     output += newline
   
+  # Run the generated code and print its output to a file
   # Swap the Output buffer
+  ### print output
   tempout = sys.stdout
   newout = StringIO.StringIO()
   sys.stdout = newout
@@ -181,6 +262,28 @@ def includeCore (filePath, *args, **kw):
   # return the data collected from the parsed file
   return output_file_text
 
+## a simple way to match the begining characters of a string
+def prefexMatch(prefex, string):
+  #print string, ":", prefex,":",
+  if len(string) >= len(prefex):
+    substring = string[0:len(prefex)]
+    #print substring,":",
+    if prefex == substring:
+      #print "true"
+      return True
+    else:
+      #print "false"
+      return False
+  else:
+    #print "false"
+    return False
+
+## a function to run a prefex match on an array of preefexes and a string
+def multiPrefixMatch(prefexes, string):
+  for prefex in prefexes:
+    if prefexMatch(prefex,string):
+      return True
+  return False
 
 ################################### RUN MAIN ###################################
 if __name__ == '__main__':
