@@ -256,17 +256,15 @@ def parsefile ( file_text, variable_map ):
     if prefexMatch('print',match):
       match="sys.stdout.write("+match[5:]+")"
 
-
-    if prefexMatch("varArgument",match):
+    elif prefexMatch("varArgument",match):
       variableNames.append(match[12:])
-      #print variableName
       newline += "stdoutRedirects.append(sys.stdout)\n"
       newline += "newOutput = StringIO.StringIO()\n"
       newline += "sys.stdout = "+ "newOutput\n"
       newline += "stringIOs.append(newOutput)\n"
       match = ""
       
-    if prefexMatch("endArgument",match):
+    elif prefexMatch("endArgument",match):
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -277,9 +275,7 @@ def parsefile ( file_text, variable_map ):
       newline += "outputString.close\n"  
       match = ""
     
-
-    ## array arguments
-    if prefexMatch('arrayArguments', match):
+    elif prefexMatch('arrayArguments', match):
       variableName = match[15:]
       variableNames.append(variableName)
       #print variableName
@@ -287,16 +283,11 @@ def parsefile ( file_text, variable_map ):
       newline += "newOutput = StringIO.StringIO()\n"
       newline += "sys.stdout = "+ "newOutput\n"
       newline += "stringIOs.append(newOutput)\n"
-      
       newline += variableName + " = []\n"
-
       match = ""
 
-    if prefexMatch('nextArgument',match):
-
+    elif prefexMatch('nextArgument',match):
       variableName = variableNames[-1]
-
-
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
       # createTheVariable
@@ -312,9 +303,7 @@ def parsefile ( file_text, variable_map ):
       newline += "stringIOs.append(newOutput)\n"
       match = ""
       
-
-    if prefexMatch('endArray',match):
-
+    elif prefexMatch('endArray',match):
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -323,13 +312,11 @@ def parsefile ( file_text, variable_map ):
       # Swap the output buffer back
       newline += "sys.stdout = stdoutRedirects.pop()\n"
       newline += "outputString.close\n"
-      
       match = ""
 
     # add the matched command to the generated code
     newline += match
-
-
+    
     # if it is a command wich requires indenting on the next line
     indentCommands = ['if','for','while','elif','else']
     if multiPrefixMatch(indentCommands,match):
