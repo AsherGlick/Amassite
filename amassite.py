@@ -4,12 +4,7 @@ import re
 import sys
 import os
 import shutil
-
-#for iomanipulation
 import StringIO
-
-#for partial functions
-#from functools import partial
 
 standardout = sys.stdout
 
@@ -71,9 +66,7 @@ def main():
   if os.path.isdir(inputPath) == False:
     compileFile(inputPath, outputPath)
   else:
-    fileList = getFileList(inputPath) # recursively get all the file names
-    #for f in fileList:
-      #print f
+    fileList = getFileList(inputPath)
     for fileName in fileList:
       compileFile(os.path.join(inputPath,fileName), os.path.join(outputPath,fileName))
 
@@ -133,7 +126,6 @@ def compileFile(inputFile,outputFile):
     elif firstLine == "{{AMASSITE-DOC}}\n":
       verboseOutput("Beginning", inputFile)
 
-      #output_file = open(outputFile,'w') # open file to output to
       output_file = createFile(outputFile)
 
       output_file_text = includeCore(inputFile)  # act as if the specified file was being included in a blank html document (only will accept files)
@@ -373,18 +365,13 @@ def includeCore (filePath, *args, **kw):
 # compares the substring to the prefex to return the result                    #
 ################################################################################
 def prefexMatch(prefex, string):
-  #print string, ":", prefex,":",
   if len(string) >= len(prefex):
     substring = string[0:len(prefex)]
-    #print substring,":",
     if prefex == substring:
-      #print "true"
       return True
     else:
-      #print "false"
       return False
   else:
-    #print "false"
     return False
 
 ############################## MULTI PREFEX MATCH ##############################
