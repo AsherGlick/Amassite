@@ -227,47 +227,44 @@ def parsefile ( file_text, variable_map ):
     # input sanitization
     bracketlessTag = match[2:len(match)-2] # cut off the brackets
     sanitizedTag = re.sub("\n\s*", " ", bracketlessTag) # convert all of the line breaks to spaces
-    
+    resultingFunction = sanitizedTag # the text of the resulting python code from the parsed tag
 
-    resultingFunction = "" # the text of the resulting python code from the parsed tag
+    metaTags = ["AMASSITE-TEMPLATE", "AMASSITE-DOC"] # Meta-tags, remove any meta tags as they have allready been parsed and handled
+    psuedoUnindentTags = ["endif","endfor","endwhile"] # Un indentation for the psuedo commands created in ammassite
+    unindentTags = ["elif", "else"] # Un indentation for the python commands that require un indentation
+    indentCommands = ['if','for','while','elif','else'] # if it is a command wich requires indenting on the next line
 
-    # Meta-tags, remove any meta tags as they have allready been parsed and handled
-    metaTags = ["AMASSITE-TEMPLATE", "AMASSITE-DOC"]
-    # Un indentation for the psuedo commands created in ammassite
-    psuedoUnindentTags = ["endif","endfor","endwhile"]
-    # Un indentation for the python commands that require un indentation
-    unindentTags = ["elif", "else"]
-    # if it is a command wich requires indenting on the next line
-    indentCommands = ['if','for','while','elif','else']
-
-    if multiPrefixMatch(metaTags,sanitizedTag): #----------------------------------------------------------
-      sanitizedTag = ""########################################################################
+    if multiPrefixMatch(metaTags,sanitizedTag):
+      #sanitizedTag = ""########################################################################
       resultingFunction = ""
-    elif multiPrefixMatch(psuedoUnindentTags, sanitizedTag):#----------------------------------------------------------
+    elif multiPrefixMatch(psuedoUnindentTags, sanitizedTag):
       indentationLevel -= 1
-      sanitizedTag = ""########################################################################
+      #sanitizedTag = ""########################################################################
       resultingFunction = ""
-    elif multiPrefixMatch(unindentTags, sanitizedTag):#----------------------------------------------------------
+    elif multiPrefixMatch(unindentTags, sanitizedTag):
       indentationLevel -=1
       resultingFunction = sanitizedTag
-      sanitizedTag = sanitizedTag ########################################################################
+      #sanitizedTag = sanitizedTag ########################################################################
 
     #Create a new line in the python code with the given indentation level
     newline = indent*indentationLevel
 
     # match some key commands to modify into different functions
-    if prefexMatch('print',sanitizedTag):#----------------------------------------------------------
-      sanitizedTag="sys.stdout.write("+sanitizedTag[5:]+")"########################################################################
+    if prefexMatch('print',sanitizedTag):
+      resultingFunction = "sys.stdout.write("+sanitizedTag[5:]+")"
+      #sanitizedTag="sys.stdout.write("+sanitizedTag[5:]+")"########################################################################
+      
 
-    elif prefexMatch("varArgument",sanitizedTag):#----------------------------------------------------------
+    elif prefexMatch("varArgument",sanitizedTag):
       variableNames.append(sanitizedTag[12:])
       newline += "stdoutRedirects.append(sys.stdout)\n"
       newline += "newOutput = StringIO.StringIO()\n"
       newline += "sys.stdout = "+ "newOutput\n"
       newline += "stringIOs.append(newOutput)\n"
-      sanitizedTag = ""########################################################################
+      #sanitizedTag = ""########################################################################
+      resultingFunction = ""
       
-    elif prefexMatch("endArgument",sanitizedTag):#----------------------------------------------------------
+    elif prefexMatch("endArgument",sanitizedTag):
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -276,9 +273,10 @@ def parsefile ( file_text, variable_map ):
       # Swap the output buffer back
       newline += "sys.stdout = stdoutRedirects.pop()\n"
       newline += "outputString.close\n"  
-      sanitizedTag = ""########################################################################
+      #sanitizedTag = ""########################################################################
+      resultingFunction = ""
     
-    elif prefexMatch('arrayArguments', sanitizedTag):#----------------------------------------------------------
+    elif prefexMatch('arrayArguments', sanitizedTag):
       variableName = sanitizedTag[15:]
       variableNames.append(variableName)
       #print variableName
@@ -287,9 +285,10 @@ def parsefile ( file_text, variable_map ):
       newline += "sys.stdout = "+ "newOutput\n"
       newline += "stringIOs.append(newOutput)\n"
       newline += variableName + " = []\n"
-      sanitizedTag = ""########################################################################
+      #sanitizedTag = ""########################################################################
+      resultingFunction = ""
 
-    elif prefexMatch('nextArgument',sanitizedTag):#----------------------------------------------------------
+    elif prefexMatch('nextArgument',sanitizedTag):
       variableName = variableNames[-1]
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -304,9 +303,10 @@ def parsefile ( file_text, variable_map ):
       newline += "newOutput = StringIO.StringIO()\n"
       newline += "sys.stdout = newOutput\n"
       newline += "stringIOs.append(newOutput)\n"
-      sanitizedTag = "" ########################################################################
+      #sanitizedTag = "" ########################################################################
+      resultingFunction = ""
       
-    elif prefexMatch('endArray',sanitizedTag):#----------------------------------------------------------
+    elif prefexMatch('endArray',sanitizedTag):
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -315,15 +315,19 @@ def parsefile ( file_text, variable_map ):
       # Swap the output buffer back
       newline += "sys.stdout = stdoutRedirects.pop()\n"
       newline += "outputString.close\n"
-      sanitizedTag = "" ########################################################################
+      #sanitizedTag = "" ########################################################################
+      resultingFunction = ""
 
-    elif multiPrefixMatch(indentCommands,sanitizedTag):#----------------------------------------------------------
+    elif multiPrefixMatch(indentCommands,sanitizedTag):
       indentationLevel += 1
+      resultingFunction = sanitizedTag
       if sanitizedTag[len(sanitizedTag)-1:len(sanitizedTag)] != ":":
-        sanitizedTag+=":" ########################################################################
+        #sanitizedTag+=":" ########################################################################
+        resultingFunction += ":"
 
     # add the matched command to the generated code
-    newline += sanitizedTag
+
+    newline += resultingFunction
 
     # create a new line
     newline += "\n"
