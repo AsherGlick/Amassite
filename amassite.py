@@ -226,14 +226,18 @@ def parsefile ( file_text, variable_map ):
   for match in matches:
     # input sanitization
     match = match[2:len(match)-2] # cut off the brackets
+    bracketlessTag
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
+    sanitizedTag
 
     # Meta-tags, remove any meta tags as they have allready been parsed and handled
-    if (match == "AMASSITE-TEMPLATE") | (match == "AMASSITE-DOC"):
+    metaTags = ["AMASSITE-TEMPLATE", "AMASSITE-DOC"]
+    if multiPrefixMatch(metaTags,match):
       match = ""
 
     # Un indentation for the psuedo commands created in ammassite
-    if (match=="endif") | (match=="endfor") | (match=="endwhile"):
+    psuedoUnindent = ["endif","endfor","endwhile"]
+    if multiPrefixMatch(psuedoUnindent, match):
       indentationLevel -= 1
       match = "" # because these are not python functions do not actually include them in the final code
 
@@ -338,6 +342,9 @@ def parsefile ( file_text, variable_map ):
     # add it to the output
     output += newline
   
+
+
+
   # Run the generated code and print its output to a file
   # Swap the Output buffer
   ### print output
