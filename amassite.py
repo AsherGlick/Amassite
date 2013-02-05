@@ -3,6 +3,7 @@
 import re
 import sys
 import os
+import shutil
 
 #for iomanipulation
 import StringIO
@@ -124,7 +125,9 @@ def compileFile(inputFile,outputFile):
       print "  Writing", outputFile, "Complete"
     else:
       # just copy the file
-      print "JUST COPY", inputFile
+      print "Copying", inputFile
+      createFile (outputFile);
+      shutil.copy2(inputFile, outputFile)
 ###############################################
 # this function goes through all the arguments and sets the flags of the arguments that exist.
 # all the other arguments that are not set as flags are returned as an array
