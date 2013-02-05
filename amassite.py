@@ -42,7 +42,12 @@ flag_descriptions = {
 __PATH=["."]
 
 ##################################### MAIN #####################################
-# The main function, does all the work, all the time...                        #
+# The main funciton grabs the arguments and sets the flags, check input        #
+# sanity, then checks to see if the input and output destinations are files    #
+# or directories. If they are files then it runs the amassite parser on the    #
+# input and puts it into the output. If they are directories ir runs the       #
+# parser on each file in the directory and ouputs it to the same relative      #
+# path of the new directory as it was in the old directory                     #
 ################################################################################
 def main():
   # grab the arguments and set the flag
@@ -72,13 +77,20 @@ def main():
     for fileName in fileList:
       compileFile(os.path.join(inputPath,fileName), os.path.join(outputPath,fileName))
 
-
+################################ VERBOSE OUTPUT ################################
+# This function is used when, during the runtime of the code, a message        #
+# should be displayed to the user that would be considered verbose and not     #
+# nessasary all the time. These messages are only displayed if the verbose     #
+# flag is set                                                                  #
+################################################################################
 def verboseOutput(*args):
   if flags["Verbose"] == 1:
     print " ".join(args)
 
-
-# recursive function to get all the files in a specified directory with relative paths to that directory #
+################################# GET FILE LIST ################################
+# This function recursively gets all the files in a directory and returns an   #
+# array containing all of the relative file paths from the specified directory #
+################################################################################
 def getFileList(inputPath):
   fileList = []
   for path in os.listdir(inputPath):
