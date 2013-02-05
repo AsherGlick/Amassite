@@ -96,6 +96,7 @@ def compileFile(inputFile,outputFile):
     input_file.close()
     if firstLine == "{{AMASSITE-TEMPLATE}}\n": ## TODO ## This method needs to check to see if that tag exists at all on the first line of the file instead of matching exactly
       # This file is an amassite template file and should not be processed
+      print "Skipping Template", inputFile
       return
 
 
@@ -163,6 +164,10 @@ def parsefile ( file_text, variable_map ):
   output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1;
 
+  print "Found", len(matches), "number of matches"
+  if len(matches) == 1:
+    print matches
+
 ########################### CHECK THROUGH THE MATCHES ##########################
 # These are the matches for the different Amassite tags in the HTML            #
 ################################################################################
@@ -170,6 +175,10 @@ def parsefile ( file_text, variable_map ):
     # input sanitization
     match = match[2:len(match)-2] # cut off the brackets
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
+
+    # Meta-tags, remove any meta tags as they have allready been parsed and handled
+    if (match == "AMASSITE-TEMPLATE"):
+      match = ""
 
     # Un indentation for the psuedo commands created in ammassite
     if (match=="endif") | (match=="endfor") | (match=="endwhile"):
