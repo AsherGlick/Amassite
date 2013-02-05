@@ -225,10 +225,9 @@ def parsefile ( file_text, variable_map ):
 ################################################################################
   for match in matches:
     # input sanitization
-    match = match[2:len(match)-2] # cut off the brackets
-    #bracketlessTag
-    match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
-    #sanitizedTag
+    bracketlessTag = match[2:len(match)-2] # cut off the brackets
+    sanitizedTag = re.sub("\n\s*", " ", bracketlessTag) # convert all of the line breaks to spaces
+    
 
     resultingFunction = "" # the text of the resulting python code from the parsed tag
 
@@ -238,33 +237,37 @@ def parsefile ( file_text, variable_map ):
     psuedoUnindentTags = ["endif","endfor","endwhile"]
     # Un indentation for the python commands that require un indentation
     unindentTags = ["elif", "else"]
-    if multiPrefixMatch(metaTags,match):
-      match = ""
+    # if it is a command wich requires indenting on the next line
+    indentCommands = ['if','for','while','elif','else']
+
+    if multiPrefixMatch(metaTags,sanitizedTag): #----------------------------------------------------------
+      sanitizedTag = ""########################################################################
       resultingFunction = ""
-    elif multiPrefixMatch(psuedoUnindentTags, match):
+    elif multiPrefixMatch(psuedoUnindentTags, sanitizedTag):#----------------------------------------------------------
       indentationLevel -= 1
-      match = ""
+      sanitizedTag = ""########################################################################
       resultingFunction = ""
-    elif multiPrefixMatch(unindentTags, match):
+    elif multiPrefixMatch(unindentTags, sanitizedTag):#----------------------------------------------------------
       indentationLevel -=1
-      resultingFunction = match
+      resultingFunction = sanitizedTag
+      sanitizedTag = sanitizedTag ########################################################################
 
     #Create a new line in the python code with the given indentation level
     newline = indent*indentationLevel
 
     # match some key commands to modify into different functions
-    if prefexMatch('print',match):
-      match="sys.stdout.write("+match[5:]+")"
+    if prefexMatch('print',sanitizedTag):#----------------------------------------------------------
+      sanitizedTag="sys.stdout.write("+sanitizedTag[5:]+")"########################################################################
 
-    elif prefexMatch("varArgument",match):
-      variableNames.append(match[12:])
+    elif prefexMatch("varArgument",sanitizedTag):#----------------------------------------------------------
+      variableNames.append(sanitizedTag[12:])
       newline += "stdoutRedirects.append(sys.stdout)\n"
       newline += "newOutput = StringIO.StringIO()\n"
       newline += "sys.stdout = "+ "newOutput\n"
       newline += "stringIOs.append(newOutput)\n"
-      match = ""
+      sanitizedTag = ""########################################################################
       
-    elif prefexMatch("endArgument",match):
+    elif prefexMatch("endArgument",sanitizedTag):#----------------------------------------------------------
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -273,10 +276,10 @@ def parsefile ( file_text, variable_map ):
       # Swap the output buffer back
       newline += "sys.stdout = stdoutRedirects.pop()\n"
       newline += "outputString.close\n"  
-      match = ""
+      sanitizedTag = ""########################################################################
     
-    elif prefexMatch('arrayArguments', match):
-      variableName = match[15:]
+    elif prefexMatch('arrayArguments', sanitizedTag):#----------------------------------------------------------
+      variableName = sanitizedTag[15:]
       variableNames.append(variableName)
       #print variableName
       newline += "stdoutRedirects.append(sys.stdout)\n"
@@ -284,9 +287,9 @@ def parsefile ( file_text, variable_map ):
       newline += "sys.stdout = "+ "newOutput\n"
       newline += "stringIOs.append(newOutput)\n"
       newline += variableName + " = []\n"
-      match = ""
+      sanitizedTag = ""########################################################################
 
-    elif prefexMatch('nextArgument',match):
+    elif prefexMatch('nextArgument',sanitizedTag):#----------------------------------------------------------
       variableName = variableNames[-1]
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -301,9 +304,9 @@ def parsefile ( file_text, variable_map ):
       newline += "newOutput = StringIO.StringIO()\n"
       newline += "sys.stdout = newOutput\n"
       newline += "stringIOs.append(newOutput)\n"
-      match = ""
+      sanitizedTag = "" ########################################################################
       
-    elif prefexMatch('endArray',match):
+    elif prefexMatch('endArray',sanitizedTag):#----------------------------------------------------------
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
@@ -312,17 +315,15 @@ def parsefile ( file_text, variable_map ):
       # Swap the output buffer back
       newline += "sys.stdout = stdoutRedirects.pop()\n"
       newline += "outputString.close\n"
-      match = ""
+      sanitizedTag = "" ########################################################################
+
+    elif multiPrefixMatch(indentCommands,sanitizedTag):#----------------------------------------------------------
+      indentationLevel += 1
+      if sanitizedTag[len(sanitizedTag)-1:len(sanitizedTag)] != ":":
+        sanitizedTag+=":" ########################################################################
 
     # add the matched command to the generated code
-    newline += match
-    
-    # if it is a command wich requires indenting on the next line
-    indentCommands = ['if','for','while','elif','else']
-    if multiPrefixMatch(indentCommands,match):
-      indentationLevel += 1
-      if match[len(match)-1:len(match)] != ":":
-        newline+=":"
+    newline += sanitizedTag
 
     # create a new line
     newline += "\n"
