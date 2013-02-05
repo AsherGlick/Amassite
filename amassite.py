@@ -226,34 +226,38 @@ def parsefile ( file_text, variable_map ):
   for match in matches:
     # input sanitization
     match = match[2:len(match)-2] # cut off the brackets
-    bracketlessTag
+    #bracketlessTag
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
-    sanitizedTag
+    #sanitizedTag
+
+    resultingFunction = "" # the text of the resulting python code from the parsed tag
 
     # Meta-tags, remove any meta tags as they have allready been parsed and handled
     metaTags = ["AMASSITE-TEMPLATE", "AMASSITE-DOC"]
+    # Un indentation for the psuedo commands created in ammassite
+    psuedoUnindentTags = ["endif","endfor","endwhile"]
+    # Un indentation for the python commands that require un indentation
+    unindentTags = ["elif", "else"]
     if multiPrefixMatch(metaTags,match):
       match = ""
-
-    # Un indentation for the psuedo commands created in ammassite
-    psuedoUnindent = ["endif","endfor","endwhile"]
-    if multiPrefixMatch(psuedoUnindent, match):
+      resultingFunction = ""
+    elif multiPrefixMatch(psuedoUnindentTags, match):
       indentationLevel -= 1
-      match = "" # because these are not python functions do not actually include them in the final code
-
-    # Un indentation for the python commands that require un indentation
-    if (match[0:4]=="elif") | (match[0:4]=="else"):
+      match = ""
+      resultingFunction = ""
+    elif multiPrefixMatch(unindentTags, match):
       indentationLevel -=1
+      resultingFunction = match
 
     #Create a new line in the python code with the given indentation level
     newline = indent*indentationLevel
 
     # match some key commands to modify into different functions
-    if (match[0:5]=="print"):
+    if prefexMatch('print',match):
       match="sys.stdout.write("+match[5:]+")"
 
 
-    if (match[0:11]=="varArgument"):
+    if prefexMatch("varArgument",match):
       variableNames.append(match[12:])
       #print variableName
       newline += "stdoutRedirects.append(sys.stdout)\n"
@@ -262,7 +266,7 @@ def parsefile ( file_text, variable_map ):
       newline += "stringIOs.append(newOutput)\n"
       match = ""
       
-    if (match[0:11]=="endArgument"):
+    if prefexMatch("endArgument",match):
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
