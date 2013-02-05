@@ -98,32 +98,33 @@ def compileFile(inputFile,outputFile):
       # This file is an amassite template file and should not be processed
       print "Skipping Template", inputFile
       return
+    elif firstLine == "{{AMASSITE-DOC}}\n":
+      print "Beginning", inputFile
 
+      #output_file = open(outputFile,'w') # open file to output to
+      output_file = createFile(outputFile)
 
-    print "Beginning", inputFile
+      output_file_text = includeCore(inputFile)  # act as if the specified file was being included in a blank html document (only will accept files)
+        
+      print "  Parsing", inputFile, "completed"
 
-    #output_file = open(outputFile,'w') # open file to output to
-    output_file = createFile(outputFile)
+      if flags["Cleanup"]==1:
+        print "  Cleaning File"
+        blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
+        output_file_text = blankline.sub("",output_file_text)
+        print "  Cleaning Complete"
+      if flags["Compress"]==1:
+        print "  Compressing HTML"
+        regexmatch = re.compile("<!--.*?-->",re.DOTALL)
+        output_file_text = regexmatch.sub("",output_file_text)
+        output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
+        print "  Compressing Complete"
+      output_file.write(output_file_text)
 
-    output_file_text = includeCore(inputFile)  # act as if the specified file was being included in a blank html document (only will accept files)
-      
-    print "Parsing", inputFile, "completed"
-
-    if flags["Cleanup"]==1:
-      print "Cleaning File"
-      blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
-      output_file_text = blankline.sub("",output_file_text)
-      print "Cleaning Complete"
-    if flags["Compress"]==1:
-      print "Compressing HTML"
-      regexmatch = re.compile("<!--.*?-->",re.DOTALL)
-      output_file_text = regexmatch.sub("",output_file_text)
-      output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
-      print "Compressing Complete"
-    output_file.write(output_file_text)
-
-    print "Writing", outputFile, "Complete"
-
+      print "  Writing", outputFile, "Complete"
+    else:
+      # just copy the file
+      print "JUST COPY", inputFile
 ###############################################
 # this function goes through all the arguments and sets the flags of the arguments that exist.
 # all the other arguments that are not set as flags are returned as an array
@@ -164,10 +165,6 @@ def parsefile ( file_text, variable_map ):
   output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1;
 
-  print "Found", len(matches), "number of matches"
-  if len(matches) == 1:
-    print matches
-
 ########################### CHECK THROUGH THE MATCHES ##########################
 # These are the matches for the different Amassite tags in the HTML            #
 ################################################################################
@@ -177,7 +174,7 @@ def parsefile ( file_text, variable_map ):
     match = re.sub("\n\s*", " ", match) # convert all of the line breaks to spaces
 
     # Meta-tags, remove any meta tags as they have allready been parsed and handled
-    if (match == "AMASSITE-TEMPLATE"):
+    if (match == "AMASSITE-TEMPLATE") | (match == "AMASSITE-DOC"):
       match = ""
 
     # Un indentation for the psuedo commands created in ammassite
