@@ -46,7 +46,7 @@ __PATH=["."]
 ################################################################################
 def main():
   # grab the arguments and set the flag
-  arguments = setFlags(sys.argv,flag_alias)
+  arguments = setFlags(sys.argv)
 
   # argument sanitatiy check
   if len(arguments) != 3:
@@ -71,6 +71,12 @@ def main():
       #print f
     for fileName in fileList:
       compileFile(os.path.join(inputPath,fileName), os.path.join(outputPath,fileName))
+
+
+def verboseOutput(*args):
+  if flags["Verbose"] == 1:
+    print " ".join(args)
+
 
 # recursive function to get all the files in a specified directory with relative paths to that directory #
 def getFileList(inputPath):
@@ -97,42 +103,43 @@ def compileFile(inputFile,outputFile):
     input_file.close()
     if firstLine == "{{AMASSITE-TEMPLATE}}\n": ## TODO ## This method needs to check to see if that tag exists at all on the first line of the file instead of matching exactly
       # This file is an amassite template file and should not be processed
-      print "Skipping Template", inputFile
+      verboseOutput ("Skipping Template", inputFile)
       return
     elif firstLine == "{{AMASSITE-DOC}}\n":
-      print "Beginning", inputFile
+      verboseOutput("Beginning", inputFile)
 
       #output_file = open(outputFile,'w') # open file to output to
       output_file = createFile(outputFile)
 
       output_file_text = includeCore(inputFile)  # act as if the specified file was being included in a blank html document (only will accept files)
         
-      print "  Parsing", inputFile, "completed"
+      verboseOutput("  Parsing", inputFile, "completed")
 
       if flags["Cleanup"]==1:
-        print "  Cleaning File"
+        verboseOutput("  Cleaning File")
         blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
         output_file_text = blankline.sub("",output_file_text)
-        print "  Cleaning Complete"
+        verboseOutput("  Cleaning Complete")
       if flags["Compress"]==1:
-        print "  Compressing HTML"
+        print "compressing"
+        verboseOutput("  Compressing HTML")
         regexmatch = re.compile("<!--.*?-->",re.DOTALL)
         output_file_text = regexmatch.sub("",output_file_text)
         output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
-        print "  Compressing Complete"
+        verboseOutput("  Compressing Complete")
       output_file.write(output_file_text)
 
-      print "  Writing", outputFile, "Complete"
+      verboseOutput("  Writing", outputFile, "Complete")
     else:
       # just copy the file
-      print "Copying", inputFile
+      verboseOutput("Copying", inputFile)
       createFile (outputFile);
       shutil.copy2(inputFile, outputFile)
 ###############################################
 # this function goes through all the arguments and sets the flags of the arguments that exist.
 # all the other arguments that are not set as flags are returned as an array
 #################################################
-def setFlags(arguments, flags):
+def setFlags(arguments):
   #remove the functioncall from the arguments list
   nonFlagArguments = []
   for argument in arguments:
