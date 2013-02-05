@@ -101,13 +101,26 @@ def getFileList(inputPath):
       fileList.append(path)
   return fileList
 
-# create file will create a new file and all the directories needed in order for that file to exist
+################################## CREATE FILE #################################
+# The create file function will create a new file at the specified directory   #
+# and return the opened file as an object. If the directory does not exist     #
+# then the directories will be created.                                        #
+################################################################################
 def createFile (filePath):
   (path,filename) = os.path.split(filePath)
   if not os.path.exists(path):
     os.makedirs(path)
   return open(filePath,'w')
 
+################################# COMPILE FILE #################################
+# This function opens the file and checks any medatata contained at the top    #
+# of the file. If the metadata indicates that the file is an amassite          #
+# template then the file is ignored. If the metadata indicates taht the file   #
+# is an amassite doc then the file is parsed and then any cleanup or           #
+# compression flags that are active are run on the results of the parsed       #
+# file. If there is no metadata then the file is just copied to it's new       #
+# destination                                                                  #
+################################################################################
 def compileFile(inputFile,outputFile):
     # Check to see if this file is a template file
     input_file = open(inputFile)
@@ -147,10 +160,12 @@ def compileFile(inputFile,outputFile):
       verboseOutput("Copying", inputFile)
       createFile (outputFile);
       shutil.copy2(inputFile, outputFile)
-###############################################
-# this function goes through all the arguments and sets the flags of the arguments that exist.
-# all the other arguments that are not set as flags are returned as an array
-#################################################
+
+################################### SET FLAGS ##################################
+# The set flags function takes in all the command line arguments and pulls     #
+# out all the flags that are in the argument list and activates them. The      #
+# function then returns all the remaining arguments as an array                #
+################################################################################
 def setFlags(arguments):
   #remove the functioncall from the arguments list
   nonFlagArguments = []
@@ -352,9 +367,11 @@ def includeCore (filePath, *args, **kw):
   # return the data collected from the parsed file
   return output_file_text
 
-#############
-## a simple way to match the begining characters of a string
-###########
+################################# PREFEX MATCH #################################
+# This function checks to see if a given string is the prefex of another       #
+# given string. It automaticly creates a substring of the longer string and    #
+# compares the substring to the prefex to return the result                    #
+################################################################################
 def prefexMatch(prefex, string):
   #print string, ":", prefex,":",
   if len(string) >= len(prefex):
@@ -370,9 +387,10 @@ def prefexMatch(prefex, string):
     #print "false"
     return False
 
-#######################
-## a function to run a prefex match on an array of preefexes and a string
-########################
+############################## MULTI PREFEX MATCH ##############################
+# This function checks to see if any of a list of prefexes are the prefex of   #
+# a string. If none of them are then the function returns false                #
+################################################################################
 def multiPrefixMatch(prefexes, string):
   for prefex in prefexes:
     if prefexMatch(prefex,string):
@@ -380,5 +398,8 @@ def multiPrefixMatch(prefexes, string):
   return False
 
 ################################### RUN MAIN ###################################
+# This is the command that runs the main function after the full python file   #
+# has been loaded                                                              #
+################################################################################
 if __name__ == '__main__':
   main()
