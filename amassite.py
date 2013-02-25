@@ -334,19 +334,19 @@ def parsefile ( file_text, variable_map ):
   newout = StringIO.StringIO()
   sys.stdout = newout
 
-  try:
-    # Execute the code
-    exec (output,variable_map);
-    # Swap the output buffer back
-    sys.stdout = tempout
-    newout.close
-  except Exception as e:
-    sys.stdout = tempout
-    newout.close
-    print type(e)
-    print e.args
-    print e
-    print sys.exc_info()[2].args
+  #try:
+  # Execute the code
+  exec (output,variable_map);
+  # Swap the output buffer back
+  sys.stdout = tempout
+  newout.close
+  # except Exception as e:
+  #   sys.stdout = tempout
+  #   newout.close
+  #   print type(e)
+  #   print e.args
+  #   print e
+  #   print sys.exc_info()[2].args
 
   # Return the resulting text
   return newout.getvalue()
