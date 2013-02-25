@@ -333,11 +333,21 @@ def parsefile ( file_text, variable_map ):
   tempout = sys.stdout
   newout = StringIO.StringIO()
   sys.stdout = newout
-  # Execute the code
-  exec (output,variable_map);
-  # Swap the output buffer back
-  sys.stdout = tempout
-  newout.close
+
+  try:
+    # Execute the code
+    exec (output,variable_map);
+    # Swap the output buffer back
+    sys.stdout = tempout
+    newout.close
+  except Exception as e:
+    sys.stdout = tempout
+    newout.close
+    print type(e)
+    print e.args
+    print e
+    print sys.exc_info()[2].args
+
   # Return the resulting text
   return newout.getvalue()
 
