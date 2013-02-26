@@ -28,6 +28,7 @@
 
 import re
 import sys
+import traceback
 import os
 import shutil
 import StringIO
@@ -211,27 +212,29 @@ def parsefile ( file_text, variable_map ):
   # find everything that is not a match
   everythingelse = regexmatch.split(file_text)
   
-  variable_map["__EVERYTHING_ELSE"] = everythingelse;
+  variable_map["__EVERYTHING_ELSE"] = everythingelse
   variable_map["stdoutRedirects"] = []
   variable_map["stringIOs"] = []
   variableNames = [] # an array/queue of the variable names for the html arguments
   indentationLevel = 0
-  indent = "  ";
+  indent = "  "
   output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
-  iteration = 1;
+  iteration = 1
+  debugLineNumber = 1
+  variable_map["__debugLineNumber"] = "0"
 
 ########################### CHECK THROUGH THE MATCHES ##########################
 # These are the matches for the different Amassite tags in the HTML            #
 ################################################################################
   for match in matches:
     # input sanitization
-    bracketlessTag = match[2:len(match)-2] # cut off the brackets
+    bracketlessTag = match[2:len(match)-2]              # cut off the brackets
     sanitizedTag = re.sub("\n\s*", " ", bracketlessTag) # convert all of the line breaks to spaces
-    resultingFunction = sanitizedTag # the text of the resulting python code from the parsed tag
+    resultingFunction = sanitizedTag                    # the text of the resulting python code from the parsed tag
 
-    metaTags = ["AMASSITE-TEMPLATE", "AMASSITE-DOC"] # Meta-tags, remove any meta tags as they have allready been parsed and handled
-    psuedoUnindentTags = ["endif","endfor","endwhile"] # Un indentation for the psuedo commands created in ammassite
-    unindentTags = ["elif", "else"] # Un indentation for the python commands that require un indentation
+    metaTags = ["AMASSITE-TEMPLATE", "AMASSITE-DOC"]    # Meta-tags, remove any meta tags as they have allready been parsed and handled
+    psuedoUnindentTags = ["endif","endfor","endwhile"]  # Un indentation for the psuedo commands created in ammassite
+    unindentTags = ["elif", "else"]                     # Un indentation for the python commands that require un indentation
     indentCommands = ['if','for','while','elif','else'] # if it is a command wich requires indenting on the next line
 
     if multiPrefixMatch(metaTags,sanitizedTag):
@@ -319,6 +322,15 @@ def parsefile ( file_text, variable_map ):
     newline += resultingFunction + "\n"
     # include the html between the toens
     newline += indent*indentationLevel + "sys.stdout.write(__EVERYTHING_ELSE["+ str(iteration) + "])\n"
+
+    # include info for debug line numbers
+    #newline += indent*indentationLevel + "__debugLineNumber = \"" + str(debugLineNumber) + "\""
+    # increment the line debug line number for each newline in the source file
+    for char in everythingelse[iteration]:
+      if char == "\n":
+        debugLineNumber += 1
+        print "incremented debug line number to " + str(debugLineNumber)
+
     iteration += 1
 
     # add it to the output
@@ -332,7 +344,14 @@ def parsefile ( file_text, variable_map ):
   ### print output
   tempout = sys.stdout
   newout = StringIO.StringIO()
-  sys.stdout = newout
+  #sys.stdout = newout
+
+
+  # # Execute the code
+  # exec (output,variable_map);
+  # # Swap the output buffer back
+  # sys.stdout = tempout
+  # newout.close
 
   try:
     # Execute the code
@@ -343,10 +362,17 @@ def parsefile ( file_text, variable_map ):
   except Exception as e:
     sys.stdout = tempout
     newout.close
+
+    #print variable_map["__debugLineNumber"]
+
     print type(e)
     print e.args
-    print e
-    print sys.exc_info()[2].args
+    print output
+    #print e
+    #print traceback.format_tb(sys.exc_info()[2])
+    #etype, value, tb = sys.exc_info()
+    #stack = traceback.extract_tb(tb)
+    #print stack
 
   # Return the resulting text
   return newout.getvalue()
