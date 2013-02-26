@@ -218,11 +218,16 @@ def parsefile ( file_text, variable_map ):
   variableNames = [] # an array/queue of the variable names for the html arguments
   indentationLevel = 0
   indent = "  "
-  output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
+  
   iteration = 1
 
   lineMapping = [] # every time there is a new line in the generated code, append the current source line to this
-  currentSourceLine = numberOfLines(everythingelse[0])
+  currentSourceLine = 1
+
+  output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
+  lineMapping.append(currentSourceLine)
+  currentSourceLine += numberOfLines(everythingelse[0])
+  lineMapping.append(currentSourceLine)
   print currentSourceLine
   
 
