@@ -228,7 +228,7 @@ def parsefile ( file_text, variable_map ):
   lineMapping.append(currentSourceLine)
   currentSourceLine += numberOfLines(everythingelse[0])
   lineMapping.append(currentSourceLine)
-  print currentSourceLine
+  #print currentSourceLine
   
 
 ########################### CHECK THROUGH THE MATCHES ##########################
@@ -361,7 +361,7 @@ def parsefile ( file_text, variable_map ):
 
     # increment the line debug line number for each newline in the source file
     currentSourceLine += numberOfLines(everythingelse[iteration])
-    print currentSourceLine
+    #print currentSourceLine
 
     iteration += 1
 
@@ -396,20 +396,11 @@ def parsefile ( file_text, variable_map ):
     # Swap the output buffer back
     sys.stdout = tempout
     newout.close
-  except Exception as e:
+  except Exception as error:
     sys.stdout = tempout
     newout.close
 
-    print type(e)
-    print e.args
-
-    printErrorInfo(lineMapping)
-
-  ###################### debugging info
-  print output
-  print "-------"
-  print lineMapping
-  #####################################
+    printErrorInfo(error, lineMapping)
 
 
   # Return the resulting text
@@ -424,15 +415,14 @@ def numberOfLines(string):
   return newlineCount
 
 
-def printErrorInfo(lineMapping):
+def printErrorInfo(error, lineMapping):
+
   # Line number
   etype, value, tb = sys.exc_info()
   stack = traceback.extract_tb(tb)
   lastElement = stack[-1]
   fileName, lineNumber, function, line = lastElement
-  print lineNumber
-  print 
-
+  print "ERROR:",value,"on line",lineMapping[lineNumber],"of","<FILENAME>"
 
 #################################### INCLUDE ###################################
 # the include function is the function that gets called from the HTML template #
