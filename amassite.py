@@ -220,8 +220,11 @@ def parsefile ( file_text, variable_map ):
   indent = "  "
   output = "import math, sys, StringIO\nsys.stdout.write(__EVERYTHING_ELSE[0])\n"
   iteration = 1
-  debugLineNumber = 1
-  variable_map["__debugLineNumber"] = "0"
+
+  lineMapping = [] # every time there is a new line in the generated code, append the current source line to this
+  currentSourceLine = numberOfLines(everythingelse[0])
+  print currentSourceLine
+  
 
 ########################### CHECK THROUGH THE MATCHES ##########################
 # These are the matches for the different Amassite tags in the HTML            #
@@ -323,13 +326,9 @@ def parsefile ( file_text, variable_map ):
     # include the html between the toens
     newline += indent*indentationLevel + "sys.stdout.write(__EVERYTHING_ELSE["+ str(iteration) + "])\n"
 
-    # include info for debug line numbers
-    #newline += indent*indentationLevel + "__debugLineNumber = \"" + str(debugLineNumber) + "\""
     # increment the line debug line number for each newline in the source file
-    for char in everythingelse[iteration]:
-      if char == "\n":
-        debugLineNumber += 1
-        print "incremented debug line number to " + str(debugLineNumber)
+    currentSourceLine += numberOfLines(everythingelse[iteration])
+    print currentSourceLine
 
     iteration += 1
 
@@ -344,7 +343,7 @@ def parsefile ( file_text, variable_map ):
   ### print output
   tempout = sys.stdout
   newout = StringIO.StringIO()
-  #sys.stdout = newout
+  sys.stdout = newout
 
 
   # # Execute the code
@@ -363,21 +362,32 @@ def parsefile ( file_text, variable_map ):
     sys.stdout = tempout
     newout.close
 
-    #print variable_map["__debugLineNumber"]
-
     print type(e)
     print e.args
-    #print output
-    #print e
-    #print traceback.format_tb(sys.exc_info()[2])
-    etype, value, tb = sys.exc_info()
-    stack = traceback.extract_tb(tb)
-    lastElement = stack[-1]
-    fileName, lineNumber, function, line = lastElement
-    print lineNumber
+
+    printErrorInfo(lineMapping)
+
 
   # Return the resulting text
   return newout.getvalue()
+
+# This function returns the number of newlines a string has
+def numberOfLines(string):
+  newlineCount = 0
+  for char in string:
+    if char == "\n":
+      newlineCount += 1
+  return newlineCount
+
+
+def printErrorInfo(lineMapping):
+  # Line number
+  etype, value, tb = sys.exc_info()
+  stack = traceback.extract_tb(tb)
+  lastElement = stack[-1]
+  fileName, lineNumber, function, line = lastElement
+  print lineNumber
+
 
 #################################### INCLUDE ###################################
 # the include function is the function that gets called from the HTML template #
