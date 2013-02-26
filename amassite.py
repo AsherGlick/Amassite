@@ -367,12 +367,14 @@ def parsefile ( file_text, variable_map ):
 
     print type(e)
     print e.args
-    print output
+    #print output
     #print e
     #print traceback.format_tb(sys.exc_info()[2])
-    #etype, value, tb = sys.exc_info()
-    #stack = traceback.extract_tb(tb)
-    #print stack
+    etype, value, tb = sys.exc_info()
+    stack = traceback.extract_tb(tb)
+    lastElement = stack[-1]
+    fileName, lineNumber, function, line = lastElement
+    print lineNumber
 
   # Return the resulting text
   return newout.getvalue()
