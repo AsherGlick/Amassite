@@ -260,20 +260,28 @@ def parsefile ( file_text, variable_map ):
     elif prefexMatch("varArgument",sanitizedTag):
       variableNames.append(sanitizedTag[12:])
       newline += "stdoutRedirects.append(sys.stdout)\n"
+      lineMapping.append(currentSourceLine)
       newline += "newOutput = StringIO.StringIO()\n"
+      lineMapping.append(currentSourceLine)
       newline += "sys.stdout = "+ "newOutput\n"
+      lineMapping.append(currentSourceLine)
       newline += "stringIOs.append(newOutput)\n"
+      lineMapping.append(currentSourceLine)
       resultingFunction = ""
       
     elif prefexMatch("endArgument",sanitizedTag):
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
+      lineMapping.append(currentSourceLine)
       # createTheVariable
       newline += variableName + " = outputString.getvalue()\n" 
+      lineMapping.append(currentSourceLine)
       # Swap the output buffer back
       newline += "sys.stdout = stdoutRedirects.pop()\n"
+      lineMapping.append(currentSourceLine)
       newline += "outputString.close\n"  
+      lineMapping.append(currentSourceLine)
       resultingFunction = ""
     
     elif prefexMatch('arrayArguments', sanitizedTag):
@@ -281,38 +289,53 @@ def parsefile ( file_text, variable_map ):
       variableNames.append(variableName)
       #print variableName
       newline += "stdoutRedirects.append(sys.stdout)\n"
+      lineMapping.append(currentSourceLine)
       newline += "newOutput = StringIO.StringIO()\n"
+      lineMapping.append(currentSourceLine)
       newline += "sys.stdout = "+ "newOutput\n"
+      lineMapping.append(currentSourceLine)
       newline += "stringIOs.append(newOutput)\n"
+      lineMapping.append(currentSourceLine)
       newline += variableName + " = []\n"
+      lineMapping.append(currentSourceLine)
       resultingFunction = ""
 
     elif prefexMatch('nextArgument',sanitizedTag):
       variableName = variableNames[-1]
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
+      lineMapping.append(currentSourceLine)
       # createTheVariable
       newline += variableName + ".append(outputString.getvalue())\n" 
+      lineMapping.append(currentSourceLine)
       #newline += variableName + ".append('v')\n" 
 
       # Swap the output buffer back
       #newline += "sys.stdout = stdoutRedirects.pop()\n"
       newline += "outputString.close\n"
+      lineMapping.append(currentSourceLine)
       # put a new outout string inot the buffer for the next element
       newline += "newOutput = StringIO.StringIO()\n"
+      lineMapping.append(currentSourceLine)
       newline += "sys.stdout = newOutput\n"
+      lineMapping.append(currentSourceLine)
       newline += "stringIOs.append(newOutput)\n"
+      lineMapping.append(currentSourceLine)
       resultingFunction = ""
       
     elif prefexMatch('endArray',sanitizedTag):
       variableName = variableNames.pop()
       # grab the embedded value
       newline += "outputString = stringIOs.pop()\n"
+      lineMapping.append(currentSourceLine)
       # createTheVariable
-      newline += variableName + ".append(outputString.getvalue())\n" 
+      newline += variableName + ".append(outputString.getvalue())\n"
+      lineMapping.append(currentSourceLine)
       # Swap the output buffer back
       newline += "sys.stdout = stdoutRedirects.pop()\n"
+      lineMapping.append(currentSourceLine)
       newline += "outputString.close\n"
+      lineMapping.append(currentSourceLine)
       resultingFunction = ""
 
     elif multiPrefixMatch(indentCommands,sanitizedTag):
@@ -323,8 +346,13 @@ def parsefile ( file_text, variable_map ):
 
     # create a new line and add the matched command to the generated code
     newline += resultingFunction + "\n"
+    lineMapping.append(currentSourceLine)
+
+    currentSourceLine += numberOfLines(match)
+
     # include the html between the toens
     newline += indent*indentationLevel + "sys.stdout.write(__EVERYTHING_ELSE["+ str(iteration) + "])\n"
+    lineMapping.append(currentSourceLine)
 
     # increment the line debug line number for each newline in the source file
     currentSourceLine += numberOfLines(everythingelse[iteration])
@@ -352,6 +380,11 @@ def parsefile ( file_text, variable_map ):
   # sys.stdout = tempout
   # newout.close
 
+
+
+
+
+
   try:
     # Execute the code
     exec (output,variable_map);
@@ -366,6 +399,12 @@ def parsefile ( file_text, variable_map ):
     print e.args
 
     printErrorInfo(lineMapping)
+
+  ###################### debugging info
+  print output
+  print "-------"
+  print lineMapping
+  #####################################
 
 
   # Return the resulting text
@@ -387,6 +426,7 @@ def printErrorInfo(lineMapping):
   lastElement = stack[-1]
   fileName, lineNumber, function, line = lastElement
   print lineNumber
+  print 
 
 
 #################################### INCLUDE ###################################
