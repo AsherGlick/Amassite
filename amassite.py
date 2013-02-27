@@ -201,7 +201,7 @@ def setFlags(arguments):
 # Parse all the files, nope i am not doing a good job of documenting this just #
 # yet                                                                          #
 ################################################################################
-def parsefile ( file_text, variable_map ):
+def parsefile ( file_text, variable_map, sourceFile):
   # add the "include" function to the variables list
   variable_map["include"]=include
   # match patterns
@@ -391,6 +391,7 @@ def parsefile ( file_text, variable_map ):
 
 
   try:
+
     # Execute the code
     exec (output,variable_map);
     # Swap the output buffer back
@@ -400,7 +401,7 @@ def parsefile ( file_text, variable_map ):
     sys.stdout = tempout
     newout.close
 
-    printErrorInfo(error, lineMapping)
+    printErrorInfo(error, lineMapping, sourceFile)
 
 
   # Return the resulting text
@@ -415,7 +416,7 @@ def numberOfLines(string):
   return newlineCount
 
 
-def printErrorInfo(error, lineMapping):
+def printErrorInfo(error, lineMapping, sourceFile):
 
   # Line number
   etype, value, tb = sys.exc_info()
@@ -424,7 +425,7 @@ def printErrorInfo(error, lineMapping):
   fileName, lineNumber, function, line = lastElement
   print lineNumber
   print fileName
-  print "ERROR:",value,"on line",lineMapping[lineNumber],"of","<FILENAME>"
+  print "ERROR:",value,"on line",lineMapping[lineNumber],"of",sourceFile
 
 #################################### INCLUDE ###################################
 # the include function is the function that gets called from the HTML template #
@@ -451,7 +452,7 @@ def includeCore (filePath, *args, **kw):
   input_file = open(newpath,'r')
   input_file_text = input_file.read()
   # parse the file that was opened
-  output_file_text = parsefile (input_file_text, kw)
+  output_file_text = parsefile (input_file_text, kw, filePath)
   # pop this files path off the stack now that parsefile is done with it
   __PATH.pop()
   # return the output stream to whatever it was before
