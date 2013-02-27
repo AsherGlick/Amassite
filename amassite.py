@@ -422,6 +422,8 @@ def printErrorInfo(error, lineMapping):
   stack = traceback.extract_tb(tb)
   lastElement = stack[-1]
   fileName, lineNumber, function, line = lastElement
+  print lineNumber
+  print fileName
   print "ERROR:",value,"on line",lineMapping[lineNumber],"of","<FILENAME>"
 
 #################################### INCLUDE ###################################
