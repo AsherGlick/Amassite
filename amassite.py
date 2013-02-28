@@ -255,7 +255,8 @@ def parsefile ( file_text, variable_map, sourceFile):
       resultingFunction = sanitizedTag
 
     #Create a new line in the python code with the given indentation level
-    newline = indent*indentationLevel
+    newline = ""
+    currentIndent = indent*indentationLevel
 
     # match some key commands to modify into different functions
     if prefexMatch('print',sanitizedTag):
@@ -264,60 +265,60 @@ def parsefile ( file_text, variable_map, sourceFile):
 
     elif prefexMatch("varArgument",sanitizedTag):
       variableNames.append(sanitizedTag[12:])
-      newline += "stdoutRedirects.append(sys.stdout)\n"
-      newline += "newOutput = StringIO.StringIO()\n"
-      newline += "sys.stdout = "+ "newOutput\n"
-      newline += "stringIOs.append(newOutput)\n"
+      newline += currentIndent + "stdoutRedirects.append(sys.stdout)\n"
+      newline += currentIndent + "newOutput = StringIO.StringIO()\n"
+      newline += currentIndent + "sys.stdout = "+ "newOutput\n"
+      newline += currentIndent + "stringIOs.append(newOutput)\n"
       resultingFunction = ""
       
     elif prefexMatch("endArgument",sanitizedTag):
       variableName = variableNames.pop()
       # grab the embedded value
-      newline += "outputString = stringIOs.pop()\n"
+      newline += currentIndent + "outputString = stringIOs.pop()\n"
       # createTheVariable
-      newline += variableName + " = outputString.getvalue()\n" 
+      newline += currentIndent + variableName + " = outputString.getvalue()\n" 
       # Swap the output buffer back
-      newline += "sys.stdout = stdoutRedirects.pop()\n"
-      newline += "outputString.close\n"  
+      newline += currentIndent + "sys.stdout = stdoutRedirects.pop()\n"
+      newline += currentIndent + "outputString.close\n"  
       resultingFunction = ""
     
     elif prefexMatch('arrayArguments', sanitizedTag):
       variableName = sanitizedTag[15:]
       variableNames.append(variableName)
       #print variableName
-      newline += "stdoutRedirects.append(sys.stdout)\n"
-      newline += "newOutput = StringIO.StringIO()\n"
-      newline += "sys.stdout = "+ "newOutput\n"
-      newline += "stringIOs.append(newOutput)\n"
-      newline += variableName + " = []\n"
+      newline += currentIndent + "stdoutRedirects.append(sys.stdout)\n"
+      newline += currentIndent + "newOutput = StringIO.StringIO()\n"
+      newline += currentIndent + "sys.stdout = "+ "newOutput\n"
+      newline += currentIndent + "stringIOs.append(newOutput)\n"
+      newline += currentIndent + variableName + " = []\n"
       resultingFunction = ""
 
     elif prefexMatch('nextArgument',sanitizedTag):
       variableName = variableNames[-1]
       # grab the embedded value
-      newline += "outputString = stringIOs.pop()\n"
+      newline += currentIndent + "outputString = stringIOs.pop()\n"
       # createTheVariable
-      newline += variableName + ".append(outputString.getvalue())\n" 
+      newline += currentIndent + variableName + ".append(outputString.getvalue())\n" 
       #newline += variableName + ".append('v')\n" 
 
       # Swap the output buffer back
       #newline += "sys.stdout = stdoutRedirects.pop()\n"
-      newline += "outputString.close\n"
+      newline += currentIndent + "outputString.close\n"
       # put a new outout string inot the buffer for the next element
-      newline += "newOutput = StringIO.StringIO()\n"
-      newline += "sys.stdout = newOutput\n"
-      newline += "stringIOs.append(newOutput)\n"
+      newline += currentIndent + "newOutput = StringIO.StringIO()\n"
+      newline += currentIndent + "sys.stdout = newOutput\n"
+      newline += currentIndent + "stringIOs.append(newOutput)\n"
       resultingFunction = ""
       
     elif prefexMatch('endArray',sanitizedTag):
       variableName = variableNames.pop()
       # grab the embedded value
-      newline += "outputString = stringIOs.pop()\n"
+      newline += currentIndent + "outputString = stringIOs.pop()\n"
       # createTheVariable
-      newline += variableName + ".append(outputString.getvalue())\n"
+      newline += currentIndent + variableName + ".append(outputString.getvalue())\n"
       # Swap the output buffer back
-      newline += "sys.stdout = stdoutRedirects.pop()\n"
-      newline += "outputString.close\n"
+      newline += currentIndent + "sys.stdout = stdoutRedirects.pop()\n"
+      newline += currentIndent + "outputString.close\n"
       resultingFunction = ""
 
     elif multiPrefixMatch(indentCommands,sanitizedTag):
@@ -327,7 +328,7 @@ def parsefile ( file_text, variable_map, sourceFile):
         resultingFunction += ":"
 
     # create a new line and add the matched command to the generated code
-    newline += resultingFunction + "\n"
+    newline += currentIndent + resultingFunction + "\n"
 
     # Add elements to the line mapping array for the number of lines of code that were added
     for i in range(0, numberOfLines(newline)):
@@ -357,8 +358,7 @@ def parsefile ( file_text, variable_map, sourceFile):
 
   # Run the generated code and print its output to a file
   # Swap the Output buffer
-  ### print output
-  tempout = sys.stdout
+    tempout = sys.stdout
   newout = StringIO.StringIO()
   sys.stdout = newout
 
@@ -407,7 +407,7 @@ def printErrorInfo(error, lineMapping, sourceFile):
   stack = traceback.extract_tb(tb)
   lastElement = stack[-1]
   fileName, lineNumber, function, line = lastElement
-  #print lineNumber
+  print lineNumber
   #print fileName
   print "ERROR:",value,"on line",lineMapping[lineNumber],"of",sourceFile
 
