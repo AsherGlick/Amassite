@@ -128,7 +128,7 @@ def getFileList(inputPath):
 ################################################################################
 def createFile (filePath):
   (path,filename) = os.path.split(filePath)
-  if not os.path.exists(path):
+  if not os.path.exists(path) and not path == "":
     os.makedirs(path)
   return open(filePath,'w')
 
