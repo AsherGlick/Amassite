@@ -1,1 +1,0 @@
-../../amassite.py vars.amass vars.html

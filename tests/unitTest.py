@@ -14,6 +14,54 @@ units = [
 	,"Stdin"    : ""
 	,"Result"   : open("htmlvars/results/varArgument.html").read()
 	}
+	,
+	{"TestName" : "Array Argument (Generate)"
+	,"Test"     : "../amassite.py -c htmlvars/arrayArgument.html output.html"
+	,"Stdin"    : ""
+	,"Result"   : "Cleanup Mode\n"
+	}
+	,
+	{"TestName" : "Array Argument (Compare)"
+	,"Test"     : "cat output.html"
+	,"Stdin"    : ""
+	,"Result"   : open("htmlvars/results/arrayArgument.html").read()
+	}
+	,
+	{"TestName" : "Nested Var Argument (Generate)"
+	,"Test"     : "../amassite.py -c htmlvars/nestedVarArgument.html output.html"
+	,"Stdin"    : ""
+	,"Result"   : "Cleanup Mode\n"
+	}
+	,
+	{"TestName" : "Nested Var Argument (Compare)"
+	,"Test"     : "cat output.html"
+	,"Stdin"    : ""
+	,"Result"   : open("htmlvars/results/nestedVarArgument.html").read()
+	}
+	,
+	{"TestName" : "Indeneted Var Argument (Generate)"
+	,"Test"     : "../amassite.py -c htmlvars/indentedVarArgument.html output.html"
+	,"Stdin"    : ""
+	,"Result"   : "Cleanup Mode\n"
+	}
+	,
+	{"TestName" : "Indented Var Argument (Compare)"
+	,"Test"     : "cat output.html"
+	,"Stdin"    : ""
+	,"Result"   : open("htmlvars/results/indentedVarArgument.html").read()
+	}
+	,
+	{"TestName" : "Indeneted Array Argument (Generate)"
+	,"Test"     : "../amassite.py -c htmlvars/indentedArrayArgument.html output.html"
+	,"Stdin"    : ""
+	,"Result"   : "Cleanup Mode\n"
+	}
+	,
+	{"TestName" : "Indented Array Argument (Compare)"
+	,"Test"     : "cat output.html"
+	,"Stdin"    : ""
+	,"Result"   : open("htmlvars/results/indentedArrayArgument.html").read()
+	}
 ]
 
 

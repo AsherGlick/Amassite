@@ -1,0 +1,11 @@
+{{AMASSITE-DOC}}
+{{for i in range(1,2)}}
+	{{arrayArguments breakTest}}
+		broken code
+	{{nextArgument}}
+		Another Line
+	{{endArray}}
+
+	{{print len(breakTest)}}
+	{{print breakTest}}
+{{endfor}}

@@ -1,0 +1,17 @@
+{{AMASSITE-DOC}}
+{{varArgument globalWraper}}
+
+	{{varArgument helloWorld}}
+		<b> HELLO WORLD </b> <br>
+		Whatsup!<br>
+	{{endArgument}}
+
+	{{for i in range(0,10)}}
+		{{print helloWorld}}
+	{{endfor}}
+
+{{endArgument}}
+
+<div style="padding: 20px">
+	{{print globalWraper}}
+</div>
