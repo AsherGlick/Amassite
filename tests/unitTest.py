@@ -62,6 +62,19 @@ units = [
 	,"Stdin"    : ""
 	,"Result"   : open("htmlvars/results/indentedArrayArgument.html").read()
 	}
+	# Debugging output Tests
+	,
+	{"TestName" : "Main Doc With Undefined Variable"
+	,"Test"     : "../amassite.py -c debugOutput/docWithError.html output.html"
+	,"Stdin"    : ""
+	,"Result"   : "Cleanup Mode\nERROR: name 'helloworld' is not defined on line 6 of debugOutput/docWithError.html\n"
+	}
+	,
+	{"TestName" : "Template With Undefined Variable"
+	,"Test"     : "../amassite.py -c debugOutput/templateWithErrorWrapper.html output.html"
+	,"Stdin"    : ""
+	,"Result"   : "Cleanup Mode\nERROR: name 'error' is not defined on line 2 of templateWIthError.html\n"
+	}
 ]
 
 
