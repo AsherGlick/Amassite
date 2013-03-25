@@ -34,7 +34,8 @@ import shutil
 import StringIO
 
 
-
+# This globabl standardout is used to revert to the actual output when parsing files
+# and redirecting output
 standardout = sys.stdout
 
 flag_alias = {
@@ -148,11 +149,14 @@ def compileFile(inputFile,outputFile):
     input_file = open(inputFile)
     firstLine = input_file.readline()
     input_file.close()
-    if firstLine == "{{AMASSITE-TEMPLATE}}\n": ## TODO ## This method needs to check to see if that tag exists at all on the first line of the file instead of matching exactly
+
+    metadata = findMetaData ( firstLine ) # grab the metadata from the first line of code
+
+    if metadata == "AMASSITE-TEMPLATE":
       # This file is an amassite template file and should not be processed
       verboseOutput ("Skipping Template", inputFile)
       return
-    elif firstLine == "{{AMASSITE-DOC}}\n":
+    elif metadata == "AMASSITE-DOC":
       verboseOutput("Beginning", inputFile)
 
       output_file = createFile(outputFile)
@@ -176,11 +180,31 @@ def compileFile(inputFile,outputFile):
       output_file.write(output_file_text)
 
       verboseOutput("  Writing", outputFile, "Complete")
+    elif metadata == "AMASSITE-SCRIPT":
+      pass
+    elif metadata == "AMASSITE-STYLE":
+      pass
     else:
       # just copy the file
       verboseOutput("Copying", inputFile)
       createFile (outputFile);
       shutil.copy2(inputFile, outputFile)
+
+def findMetaData(line):
+  match_pattern = "{{.*?}}"
+  regexmatch = re.compile(match_pattern,re.DOTALL)
+  matches = regexmatch.findall (line)
+  # if there is no metadata found return an empty string
+  if (len(matches) == 0):
+    return ""
+  # otherwise clean and format the first tag that was found
+  else:
+    rawmetadata = matches[0] # grab the first match (the metadata)
+    bracketlessmetadata = rawmetadata[2:len(rawmetadata)-2]
+    cleanMetadata = bracketlessmetadata.strip()
+    uppercaseMetadata = cleanMetadata.upper()
+    return uppercaseMetadata
+    #print (cleanMetadata)
 
 ################################### SET FLAGS ##################################
 # The set flags function takes in all the command line arguments and pulls     #
@@ -237,9 +261,10 @@ def parsefile ( file_text, variable_map, sourceFile):
 # These are the matches for the different Amassite tags in the HTML            #
 ################################################################################
   for match in matches:
-    # input sanitization
+    # input sanitation
     bracketlessTag = match[2:len(match)-2]              # cut off the brackets
     sanitizedTag = re.sub("\n\s*", " ", bracketlessTag) # convert all of the line breaks to spaces
+    sanitizedTag = sanitizedTag.strip()
     resultingFunction = sanitizedTag                    # the text of the resulting python code from the parsed tag
 
     metaTags = ["AMASSITE-TEMPLATE", "AMASSITE-DOC"]    # Meta-tags, remove any meta tags as they have allready been parsed and handled
