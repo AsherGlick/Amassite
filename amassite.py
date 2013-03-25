@@ -272,7 +272,7 @@ def parsefile ( file_text, variable_map, sourceFile):
     unindentTags = ["elif", "else"]                     # Un indentation for the python commands that require un indentation
     indentCommands = ['if','for','while','elif','else'] # if it is a command wich requires indenting on the next line
 
-    if multiPrefixMatch(metaTags,sanitizedTag):
+    if multiPrefixMatch(metaTags,sanitizedTag.upper()):
       resultingFunction = ""
     elif multiPrefixMatch(psuedoUnindentTags, sanitizedTag):
       indentationLevel -= 1
