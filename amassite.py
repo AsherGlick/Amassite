@@ -25,13 +25,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE   #
 # POSSIBILITY OF SUCH DAMAGE.                                                  #
 ################################################################################
-
+from __future__ import print_function
 import re
 import sys
 import traceback
 import os
 import shutil
 import StringIO
+
+
 
 standardout = sys.stdout
 
@@ -77,7 +79,7 @@ def main():
 
   # argument sanitatiy check
   if len(arguments) != 3:
-    print "amassite <input> <output>"
+    print ("amassite <input> <output>")
     exit()
   
 
@@ -86,7 +88,7 @@ def main():
 
   # Check to see if arguments are files or directories
   if os.path.isdir(inputPath) != os.path.isdir(outputPath):
-    print "Both the input and the output must be a directory or a file path, they cannot be both"
+    print ("Both the input and the output must be a directory or a file path, they cannot be both")
     exit()
 
   
@@ -105,7 +107,7 @@ def main():
 ################################################################################
 def verboseOutput(*args):
   if flags["Verbose"] == 1:
-    print " ".join(args)
+    print (" ".join(args))
 
 ################################# GET FILE LIST ################################
 # This function recursively gets all the files in a directory and returns an   #
@@ -165,7 +167,7 @@ def compileFile(inputFile,outputFile):
         output_file_text = blankline.sub("",output_file_text)
         verboseOutput("  Cleaning Complete")
       if flags["Compress"]==1:
-        print "compressing"
+        print ("compressing")
         verboseOutput("  Compressing HTML")
         regexmatch = re.compile("<!--.*?-->",re.DOTALL)
         output_file_text = regexmatch.sub("",output_file_text)
@@ -192,7 +194,7 @@ def setFlags(arguments):
     try:
       flagname = flag_alias[argument]
       flags[flagname] = 1
-      print flagname, "Mode"
+      print (flagname, "Mode")
     except Exception:
       nonFlagArguments.append(argument)
   return nonFlagArguments
@@ -408,7 +410,7 @@ def printErrorInfo(error, lineMapping, sourceFile):
   fileName, lineNumber, function, line = lastElement
   #print lineNumber
   #print fileName
-  print "ERROR:",value,"on line",lineMapping[lineNumber],"of",sourceFile
+  print ("ERROR:",value,"on line",lineMapping[lineNumber],"of",sourceFile)
 
 #################################### INCLUDE ###################################
 # the include function is the function that gets called from the HTML template #
@@ -416,7 +418,7 @@ def printErrorInfo(error, lineMapping, sourceFile):
 # redirected to a different input buffer and then saved to the full file       #
 ################################################################################
 def include(filePath, *args, **kw):
-  print includeCore (filePath, *args, **kw),
+  print (includeCore (filePath, *args, **kw),)
   
 ################################# INCLUDE CORE #################################
 # The `include core` function calculates relative file paths, opens the file   #
