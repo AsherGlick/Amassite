@@ -32,6 +32,7 @@ import traceback
 import os
 import shutil
 import StringIO
+from subprocess import call
 
 
 # This globabl standardout is used to revert to the actual output when parsing files
@@ -181,7 +182,13 @@ def compileFile(inputFile,outputFile):
 
       verboseOutput("  Writing", outputFile, "Complete")
     elif metadata == "AMASSITE-SCRIPT":
-      pass
+      #print ( os.path.realpath(__file__) )
+      #print ( os.path.dirname(os.path.realpath(__file__)) )
+      #print ( os.path.join(os.path.dirname(os.path.realpath(__file__)),"jsCompiler/compiler.jar"))
+      compilerPath = os.path.join(os.path.dirname(os.path.realpath(__file__)),"jsCompiler/compiler.jar")
+      #call(["java","-jar",compilerPath,"--help"])
+      call(["java","-jar",compilerPath,"--js",inputFile,"--js_output_file",outputFile])
+      
     elif metadata == "AMASSITE-STYLE":
       pass
     else:
