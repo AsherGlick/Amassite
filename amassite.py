@@ -166,11 +166,7 @@ def compileFile(inputFile,outputFile):
         
       verboseOutput("  Parsing", inputFile, "completed")
 
-      if flags["Cleanup"]==1:
-        verboseOutput("  Cleaning File")
-        blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
-        output_file_text = blankline.sub("",output_file_text)
-        verboseOutput("  Cleaning Complete")
+      
       if flags["Compress"]==1:
         print ("compressing")
         verboseOutput("  Compressing HTML")
@@ -178,6 +174,13 @@ def compileFile(inputFile,outputFile):
         output_file_text = regexmatch.sub("",output_file_text)
         output_file_text = re.sub(">[ \t\r\f\n\v]*<","><",output_file_text)
         verboseOutput("  Compressing Complete")
+
+      if flags["Cleanup"]==1:
+        verboseOutput("  Cleaning File")
+        blankline = re.compile("^[ \t\r\f\v]*\n",re.MULTILINE)
+        output_file_text = blankline.sub("",output_file_text)
+        verboseOutput("  Cleaning Complete")
+
       output_file.write(output_file_text)
 
       verboseOutput("  Writing", outputFile, "Complete")
@@ -190,7 +193,8 @@ def compileFile(inputFile,outputFile):
       call(["java","-jar",compilerPath,"--js",inputFile,"--js_output_file",outputFile])
       
     elif metadata == "AMASSITE-STYLE":
-      pass
+      compilerPath = os.path.join(os.path.dirname(os.path.realpath(__file__)),"cssMinifyer/closure-stylesheets-20111230.jar")
+      call(["java","-jar",compilerPath,"--output-file",outputFile,inputFile])
     else:
       # just copy the file
       verboseOutput("Copying", inputFile)
@@ -212,6 +216,7 @@ def findMetaData(line):
     uppercaseMetadata = cleanMetadata.upper()
     return uppercaseMetadata
     #print (cleanMetadata)
+
 
 ################################### SET FLAGS ##################################
 # The set flags function takes in all the command line arguments and pulls     #
