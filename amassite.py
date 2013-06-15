@@ -194,7 +194,7 @@ def compileFile(inputFile,outputFile):
       
     elif metadata == "AMASSITE-STYLE":
       compilerPath = os.path.join(os.path.dirname(os.path.realpath(__file__)),"cssMinifyer/closure-stylesheets-20111230.jar")
-      call(["java","-jar",compilerPath,"--output-file",outputFile,inputFile])
+      call(["java","-jar",compilerPath,"--allow-unrecognized-functions","--output-file",outputFile,inputFile])
     else:
       # just copy the file
       verboseOutput("Copying", inputFile)
