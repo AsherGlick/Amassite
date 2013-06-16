@@ -149,6 +149,7 @@ def htmlCompress(htmlFile):
 def htmlCleanup(htmlFile):
     blankline = re.compile("^[ \t\r\f\v]*\n", re.MULTILINE)
     htmlFile = blankline.sub("", htmlFile)
+    return htmlFile
 
 
 ################################# COMPILE FILE #################################
