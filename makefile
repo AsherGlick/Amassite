@@ -9,7 +9,7 @@ all:
 # user                                                                         #
 ################################################################################
 install:
-	ln -s $(CURDIR)/amassite.py /usr/bin/amassite
+	ln -s $(CURDIR)/source/amassite.py /usr/bin/amassite
 
 ################################### UNINSTALL ##################################
 # The uninstall function removes the symlink that the install function created #
