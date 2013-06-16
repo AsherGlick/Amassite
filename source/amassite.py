@@ -139,6 +139,18 @@ def createFile(filePath):
     return open(filePath, 'w')
 
 
+def htmlCompress(htmlFile):
+    regexmatch = re.compile("<!--.*?-->", re.DOTALL)
+    htmlFile = regexmatch.sub("", htmlFile)
+    htmlFile = re.sub(">[ \t\r\f\n\v]*<", "><", htmlFile)
+    return htmlFile
+
+
+def htmlCleanup(htmlFile):
+    blankline = re.compile("^[ \t\r\f\v]*\n", re.MULTILINE)
+    htmlFile = blankline.sub("", htmlFile)
+
+
 ################################# COMPILE FILE #################################
 # This function opens the file and checks any medatata contained at the top    #
 # of the file. If the metadata indicates that the file is an amassite          #
@@ -149,56 +161,47 @@ def createFile(filePath):
 # destination                                                                  #
 ################################################################################
 def compileFile(inputFile, outputFile):
-        # Check to see if this file is a template file
         input_file = open(inputFile)
         firstLine = input_file.readline()
         input_file.close()
-
         metadata = findMetaData(firstLine)  # grab the metadata from the first line of code
 
         if metadata == "AMASSITE-TEMPLATE":
             # This file is an amassite template file and should not be processed
             verboseOutput("Skipping Template", inputFile)
-            return
+
         elif metadata == "AMASSITE-DOC":
+            # This file is an amassite doc and must be parsed
             verboseOutput("Beginning", inputFile)
-
-            output_file = createFile(outputFile)
-
             output_file_text = includeCore(inputFile)  # act as if the specified file was being included in a blank html document (only will accept files)
-
             verboseOutput("  Parsing", inputFile, "completed")
 
             if flags["Compress"] == 1:
-                print ("compressing")
                 verboseOutput("  Compressing HTML")
-                regexmatch = re.compile("<!--.*?-->", re.DOTALL)
-                output_file_text = regexmatch.sub("", output_file_text)
-                output_file_text = re.sub(">[ \t\r\f\n\v]*<", "><", output_file_text)
+                output_file_text = htmlCompress(output_file_text)
                 verboseOutput("  Compressing Complete")
 
             if flags["Cleanup"] == 1:
                 verboseOutput("  Cleaning File")
-                blankline = re.compile("^[ \t\r\f\v]*\n", re.MULTILINE)
-                output_file_text = blankline.sub("", output_file_text)
+                output_file_text = htmlCleanup(output_file_text)
                 verboseOutput("  Cleaning Complete")
 
+            output_file = createFile(outputFile)
             output_file.write(output_file_text)
-
             verboseOutput("  Writing", outputFile, "Complete")
+
         elif metadata == "AMASSITE-SCRIPT":
-            #print ( os.path.realpath(__file__) )
-            #print ( os.path.dirname(os.path.realpath(__file__)) )
-            #print ( os.path.join(os.path.dirname(os.path.realpath(__file__)),"jsCompiler/compiler.jar"))
+            # This file is an amassite script file send it to the javascript minifyer
             compilerPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jsCompiler/compiler.jar")
-            #call(["java","-jar",compilerPath,"--help"])
             call(["java", "-jar", compilerPath, "--js", inputFile, "--js_output_file", outputFile])
 
         elif metadata == "AMASSITE-STYLE":
+            # This file is an amassite style file send it to the css compressor
             compilerPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "cssMinifyer/closure-stylesheets-20111230.jar")
             call(["java", "-jar", compilerPath, "--allow-unrecognized-functions", "--output-file", outputFile, inputFile])
+
         else:
-            # just copy the file
+            # Copy the file Exactly if it does not have meta data
             verboseOutput("Copying", inputFile)
             createFile(outputFile)
             shutil.copy2(inputFile, outputFile)
@@ -218,7 +221,6 @@ def findMetaData(line):
         cleanMetadata = bracketlessmetadata.strip()
         uppercaseMetadata = cleanMetadata.upper()
         return uppercaseMetadata
-        #print (cleanMetadata)
 
 
 ################################### SET FLAGS ##################################
