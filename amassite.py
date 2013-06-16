@@ -56,7 +56,7 @@ flags = {
     'Python': 0,
     'Cleanup': 0
 }
-                 
+
 flag_descriptions = {
     'Verbose': "Print out information step by step of the process",
     'Compress': "Compresses the file, removes spaces and whatnot",
