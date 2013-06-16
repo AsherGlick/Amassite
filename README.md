@@ -37,23 +37,23 @@ A static webpage compiler, based on the django markup syntax
 An easy way to avoid php when created non-dynamic websites that you want to change occasinally  
 
 
-Planned Flags
+Planned Flags  
 -C cleanup -> removes excess spaces from the html document  
 
 -j javascript minification  -> runs all javascript files (.js) through the google closure engine  
 -c css minification  -> runs all css files (.css) through a yet undetermined css minifier  
 -h html minification  -> runs all html files through a html minification  
 
--F do all the compressions
+-F do all the compressions  
 
 
 File Construction
 -----------------
-Types of files
-Amassite Doc - HTML documents that become compiled files
-Amassite Template - HTML documents that are used in other files and should not become compiled files
-Amassite Script - Javascript files that should be minified
-Amassite Style - CSS files that should be minified
+Types of files  
+Amassite Doc - HTML documents that become compiled files  
+Amassite Template - HTML documents that are used in other files and should not become compiled files  
+Amassite Script - Javascript files that should be minified  
+Amassite Style - CSS files that should be minified  
 
-All other files will be copied over to the output directory in the same file structure
-If a folder only contained Amassite Template files the folder will not exist in the output directory
+All other files will be copied over to the output directory in the same file structure  
+If a folder only contained Amassite Template files the folder will not exist in the output directory  
