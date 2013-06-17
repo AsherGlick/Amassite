@@ -33,6 +33,7 @@ import os
 import shutil
 import StringIO
 from subprocess import call
+import pyinotify
 
 
 # This globabl standardout is used to revert to the actual output when parsing files
@@ -47,6 +48,7 @@ flag_alias = {
     '--help': 'Help',
     '-p': 'Python',
     '-c': 'Cleanup',
+    '-b': 'ContinuousBackground',
 }
 
 flags = {
@@ -54,7 +56,8 @@ flags = {
     'Compress': 0,
     'Minimize': 0,
     'Python': 0,
-    'Cleanup': 0
+    'Cleanup': 0,
+    'ContinuousBackground,': 0,
 }
 
 flag_descriptions = {
@@ -102,6 +105,28 @@ def main():
         fileList = getFileList(inputPath)
         for fileName in fileList:
             compileFile(os.path.join(inputPath, fileName), os.path.join(outputPath, fileName))
+
+    if flags['ContinuousBackground'] == 1:
+
+        wm = pyinotify.WatchManager()
+        mask = pyinotify.IN_MODIFY
+
+        modifiedFiles = []
+
+        class EventHandler(pyinotify.ProcessEvent):
+            def process_IN_MODIFY(self, event):
+                print ("Modified: ", event.pathname)
+                if modifiedFiles[event.pathname] == 1:
+                    return
+                modifiedFiles[event.pathname] = 1
+
+
+        handler = EventHandler()
+        notifier = pyinotify.Notifier(wm, handler)
+
+        wdd = wm.add_watch("/home/elhim/Code/Projects/aglick.com-Amassite/amassite", mask, rec=True)
+
+        notifier.loop()
 
 
 ################################ VERBOSE OUTPUT ################################
@@ -166,12 +191,12 @@ def htmlCleanup(htmlFile):
 ################################################################################
 def compileFile(inputFile, outputFile):
     global touchedFiles
-    touchedFiles = ["test"]
+    touchedFiles = []
     input_file = open(inputFile)
     firstLine = input_file.readline()
     input_file.close()
     metadata = findMetaData(firstLine)  # grab the metadata from the first line of code
-    print(inputFile, "begin")
+    #print(inputFile, "begin")
     if metadata == "AMASSITE-TEMPLATE":
         # This file is an amassite template file and should not be processed
         verboseOutput("Skipping Template", inputFile)
@@ -212,7 +237,7 @@ def compileFile(inputFile, outputFile):
         createFile(outputFile)
         shutil.copy2(inputFile, outputFile)
 
-    print (inputFile, "uses", touchedFiles)
+    #print (inputFile, "uses", touchedFiles)
 
 
 def findMetaData(line):
@@ -467,7 +492,7 @@ def includeCore(filePath, *args, **kw):
     outputStream = sys.stdout
     sys.stdout = standardout
 
-    print ("--", filePath)
+    #print ("--", filePath)
     global touchedFiles
     touchedFiles.append(filePath)
     # calculate the relative path of the file, relative to the file calling it
