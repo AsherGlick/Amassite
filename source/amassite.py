@@ -34,6 +34,7 @@ import shutil
 import StringIO
 from subprocess import call
 import pyinotify
+import time
 
 
 # This globabl standardout is used to revert to the actual output when parsing files
@@ -111,23 +112,34 @@ def main():
         wm = pyinotify.WatchManager()
         mask = pyinotify.IN_MODIFY
 
-        modifiedFiles = []
+        modifiedFiles = {}
 
         class EventHandler(pyinotify.ProcessEvent):
             def process_IN_MODIFY(self, event):
-                print ("Modified: ", event.pathname)
-                if modifiedFiles[event.pathname] == 1:
+                print ("check modify")
+                if event.pathname in modifiedFiles and modifiedFiles[event.pathname] == 1:
                     return
                 modifiedFiles[event.pathname] = 1
+                time.sleep(1)
+                modifiedFiles[event.pathname] = 0
+                print ("Modified: ", event.pathname)
+
 
 
         handler = EventHandler()
-        notifier = pyinotify.Notifier(wm, handler)
+        notifier = pyinotify.ThreadedNotifier(wm, handler)
+
+        notifier.start()
 
         wdd = wm.add_watch("/home/elhim/Code/Projects/aglick.com-Amassite/amassite", mask, rec=True)
 
-        notifier.loop()
-
+        try:
+            while True:
+                pass
+        except (KeyboardInterrupt, SystemExit):
+            notifier.stop()
+            raise
+        
 
 ################################ VERBOSE OUTPUT ################################
 # This function is used when, during the runtime of the code, a message        #
