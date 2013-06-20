@@ -136,7 +136,7 @@ def main():
         try:
             while True:
                 pass
-        except (KeyboardInterrupt, SystemExit):
+        except:
             notifier.stop()
             raise
         
